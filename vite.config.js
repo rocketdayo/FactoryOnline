@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: "./",
+  base: "/FactoryOnline/",
 
   server: {
     host: "0.0.0.0",
