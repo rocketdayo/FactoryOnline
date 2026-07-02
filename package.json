@@ -1,0 +1,24 @@
+{
+  "name": "factory-online",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Factory Online - Browser-based factory automation game built with Phaser, Vite, and Firebase.",
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "firebase": "^12.0.0",
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
