@@ -1,5 +1,5 @@
 // src/buildings/GhostBelt.js
-// updated: 2026-07-03
+// updated: 2026-07-03 (v0.2.7)
 
 export default class GhostBelt {
 
@@ -93,6 +93,17 @@ export default class GhostBelt {
             x - 7,
             y - 12
         );
+
+    }
+
+    getGridPosition() {
+
+        return {
+
+            x: this.sprite.x,
+            y: this.sprite.y
+
+        };
 
     }
 

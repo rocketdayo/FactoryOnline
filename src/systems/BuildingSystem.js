@@ -1,5 +1,5 @@
 // src/systems/BuildingSystem.js
-// updated: 2026-07-03
+// updated: 2026-07-03 (v0.2.7)
 
 export default class BuildingSystem {
 
@@ -63,6 +63,29 @@ export default class BuildingSystem {
             );
 
         });
+
+    }
+
+    placeBelt(scene, x, y, direction, BeltClass) {
+
+        if (this.getBuildingAt(x, y)) {
+
+            return false;
+
+        }
+
+        const belt = new BeltClass(
+            scene,
+            x,
+            y,
+            direction
+        );
+
+        this.buildings.push(
+            belt
+        );
+
+        return true;
 
     }
 
