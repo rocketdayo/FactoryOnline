@@ -1,144 +1,67 @@
 import Phaser from "phaser";
-import GameConfig from "../config/GameConfig.js";
+
 import Player from "../entities/Player.js";
-import World from "../world/World.js";
-import OreGenerator from "../world/OreGenerator.js";
-import FPSCounter from "../ui/FPSCounter.js";
-import InventoryUI from "../ui/InventoryUI.js";
-import ItemDatabase from "../items/ItemDatabase.js";
+
+import CameraSystem from "../systems/CameraSystem.js";
+import InputSystem from "../systems/InputSystem.js";
+import UISystem from "../systems/UISystem.js";
+import WorldSystem from "../systems/WorldSystem.js";
+import MiningSystem from "../systems/MiningSystem.js";
 
 export default class GameScene extends Phaser.Scene {
 
     constructor() {
+
         super("GameScene");
+
     }
 
     create() {
 
-        this.world = new World(this);
+        // プレイヤー
+        this.player = new Player(this, 400, 300);
 
-        this.player = new Player(
+        // システム
+        this.worldSystem = new WorldSystem(this);
+
+        this.cameraSystem = new CameraSystem(this);
+
+        this.inputSystem = new InputSystem(this);
+
+        this.uiSystem = new UISystem(
             this,
-            400,
-            300
+            this.player
         );
 
-        this.inventoryUI =
-            new InventoryUI(
-                this,
-                this.player.inventory
-            );
-
-        this.oreGenerator =
-            new OreGenerator(this);
-
-        this.cameras.main.startFollow(
-            this.player.sprite,
-            true,
-            0.1,
-            0.1
+        this.miningSystem = new MiningSystem(
+            this,
+            this.worldSystem,
+            this.player,
+            this.uiSystem
         );
 
-        this.cameras.main.setZoom(
-            GameConfig.CAMERA.DEFAULT_ZOOM
+        // カメラ初期化
+        this.cameraSystem.initialize(
+            this.player.sprite
         );
 
-        this.cursors =
-            this.input.keyboard.createCursorKeys();
+        // 採掘キー
+        this.inputSystem.onMine(() => {
 
-        this.keys =
-            this.input.keyboard.addKeys(
-                "W,A,S,D,E"
-            );
+            this.miningSystem.mine();
 
-        this.fpsCounter =
-            new FPSCounter(this);
-
-        this.debugText =
-            this.add.text(
-                10,
-                10,
-                "",
-                {
-                    fontSize: "14px",
-                    fill: "#ffffff"
-                }
-            ).setScrollFactor(0);
-
-        this.input.keyboard.on(
-            "keydown-E",
-            () => {
-                this.mine();
-            }
-        );
-
-    }
-
-    mine() {
-
-        const ore =
-            this.oreGenerator.getNearbyOre(
-                this.player.sprite
-            );
-
-        if (!ore) return;
-
-        const destroyed =
-            ore.mine();
-
-        if (destroyed) {
-
-            switch (ore.type) {
-
-                case "iron":
-
-                    this.player.inventory.addItem(
-                        ItemDatabase.ironOre
-                    );
-
-                    break;
-
-                case "copper":
-
-                    this.player.inventory.addItem(
-                        ItemDatabase.copperOre
-                    );
-
-                    break;
-
-                case "gold":
-
-                    this.player.inventory.addItem(
-                        ItemDatabase.goldOre
-                    );
-
-                    break;
-
-            }
-
-            this.inventoryUI.update();
-
-        }
+        });
 
     }
 
     update(time, delta) {
 
         this.player.update(
-            this.cursors,
-            this.keys
+            this.inputSystem.cursors,
+            this.inputSystem.keys
         );
 
-        this.fpsCounter.update(
-            delta
-        );
-
-        const p =
-            this.player.sprite;
-
-        this.debugText.setText(
-            `X: ${Math.floor(p.x)} Y: ${Math.floor(p.y)}`
-        );
+        this.uiSystem.update(delta);
 
     }
 
