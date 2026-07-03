@@ -1,5 +1,5 @@
 // src/buildings/Belt.js
-// updated: 2026-07-03
+// updated: 2026-07-03 (v0.2.6)
 
 export default class Belt {
 
@@ -13,6 +13,8 @@ export default class Belt {
         this.direction = direction;
 
         this.speed = 90;
+
+        this.centerForce = 8;
 
         this.sprite = scene.add.rectangle(
             x,
@@ -87,30 +89,32 @@ export default class Belt {
 
         item.setState("BELT");
 
+        const body = item.sprite.body;
+
         switch (this.direction) {
 
             case "right":
 
-                item.sprite.body.setVelocity(
+                body.setVelocity(
                     this.speed,
-                    0
+                    (this.y - item.sprite.y) * this.centerForce
                 );
 
                 break;
 
             case "left":
 
-                item.sprite.body.setVelocity(
+                body.setVelocity(
                     -this.speed,
-                    0
+                    (this.y - item.sprite.y) * this.centerForce
                 );
 
                 break;
 
             case "up":
 
-                item.sprite.body.setVelocity(
-                    0,
+                body.setVelocity(
+                    (this.x - item.sprite.x) * this.centerForce,
                     -this.speed
                 );
 
@@ -118,8 +122,8 @@ export default class Belt {
 
             case "down":
 
-                item.sprite.body.setVelocity(
-                    0,
+                body.setVelocity(
+                    (this.x - item.sprite.x) * this.centerForce,
                     this.speed
                 );
 
