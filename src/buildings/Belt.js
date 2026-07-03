@@ -12,6 +12,8 @@ export default class Belt {
 
         this.direction = direction;
 
+        this.speed = 90;
+
         this.sprite = scene.add.rectangle(
             x,
             y,
@@ -23,6 +25,61 @@ export default class Belt {
         scene.physics.add.existing(this.sprite);
 
         this.sprite.body.setImmovable(true);
+
+    }
+
+    contains(item) {
+
+        const dx = Math.abs(item.sprite.x - this.x);
+        const dy = Math.abs(item.sprite.y - this.y);
+
+        return dx < 16 && dy < 16;
+
+    }
+
+    moveItem(item) {
+
+        item.setState("BELT");
+
+        switch (this.direction) {
+
+            case "right":
+
+                item.sprite.body.setVelocity(
+                    this.speed,
+                    0
+                );
+
+                break;
+
+            case "left":
+
+                item.sprite.body.setVelocity(
+                    -this.speed,
+                    0
+                );
+
+                break;
+
+            case "up":
+
+                item.sprite.body.setVelocity(
+                    0,
+                    -this.speed
+                );
+
+                break;
+
+            case "down":
+
+                item.sprite.body.setVelocity(
+                    0,
+                    this.speed
+                );
+
+                break;
+
+        }
 
     }
 

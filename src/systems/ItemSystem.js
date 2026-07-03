@@ -1,3 +1,6 @@
+// src/systems/ItemSystem.js
+// updated: 2026-07-03
+
 import ItemEntity from "../items/ItemEntity.js";
 
 export default class ItemSystem {
@@ -42,6 +45,18 @@ export default class ItemSystem {
                 );
 
                 this.items.splice(i, 1);
+
+                continue;
+
+            }
+
+            if (item.state === "BELT") {
+
+                item.sprite.body.setDrag(0);
+
+            } else {
+
+                item.sprite.body.setDrag(120);
 
             }
 

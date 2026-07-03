@@ -8,7 +8,11 @@ export default class ItemEntity {
         this.scene = scene;
         this.item = item;
 
+        this.state = "FREE";
+
         this.spawnTime = scene.time.now;
+
+        this.lastBeltTime = 0;
 
         let color = 0xffffff;
 
@@ -50,26 +54,56 @@ export default class ItemEntity {
 
     }
 
+    setState(state) {
+
+        this.state = state;
+
+        if (state === "BELT") {
+
+            this.lastBeltTime = this.scene.time.now;
+
+        }
+
+    }
+
     update(player) {
 
-        if (!this.sprite.active) return false;
+        if (!this.sprite.active) {
+
+            return false;
+
+        }
+
+        if (
+            this.state === "BELT" &&
+            this.scene.time.now - this.lastBeltTime > 100
+        ) {
+
+            this.state = "FREE";
+
+        }
 
         const dx = player.x - this.sprite.x;
         const dy = player.y - this.sprite.y;
 
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        // 👉 少し遅らせて吸引開始
-        if (this.scene.time.now - this.spawnTime > 200) {
+        if (
+            this.state === "FREE" &&
+            this.scene.time.now - this.spawnTime > 200 &&
+            dist < 120
+        ) {
 
-            if (dist < 120) {
+            this.state = "PLAYER";
 
-                this.sprite.body.setVelocity(
-                    dx * 5,
-                    dy * 5
-                );
+        }
 
-            }
+        if (this.state === "PLAYER") {
+
+            this.sprite.body.setVelocity(
+                dx * 5,
+                dy * 5
+            );
 
         }
 

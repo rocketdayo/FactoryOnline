@@ -1,3 +1,6 @@
+// src/systems/MiningSystem.js
+// updated: 2026-07-03
+
 import ItemDatabase from "../items/ItemDatabase.js";
 
 export default class MiningSystem {
@@ -42,8 +45,6 @@ export default class MiningSystem {
 
         }
 
-        // 👉 インベントリ直追加をやめる
-        // 👉 アイテムを地面に出す
         if (item) {
 
             this.itemSystem.spawn(

@@ -41,6 +41,32 @@ export default class BuildingSystem {
 
         }
 
+        if (!this.scene.itemSystem) {
+
+            return;
+
+        }
+
+        for (const building of this.buildings) {
+
+            for (const item of this.scene.itemSystem.items) {
+
+                if (!item.sprite.active) {
+
+                    continue;
+
+                }
+
+                if (building.contains(item)) {
+
+                    building.moveItem(item);
+
+                }
+
+            }
+
+        }
+
     }
 
 }
