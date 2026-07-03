@@ -22,9 +22,55 @@ export default class Belt {
             0x3b82f6
         );
 
+        this.arrow = scene.add.text(
+            x - 7,
+            y - 12,
+            "",
+            {
+                fontSize: "20px",
+                color: "#ffffff"
+            }
+        );
+
+        this.setDirection(direction);
+
         scene.physics.add.existing(this.sprite);
 
         this.sprite.body.setImmovable(true);
+
+    }
+
+    setDirection(direction) {
+
+        this.direction = direction;
+
+        switch (direction) {
+
+            case "right":
+
+                this.arrow.setText("▶");
+
+                break;
+
+            case "down":
+
+                this.arrow.setText("▼");
+
+                break;
+
+            case "left":
+
+                this.arrow.setText("◀");
+
+                break;
+
+            case "up":
+
+                this.arrow.setText("▲");
+
+                break;
+
+        }
 
     }
 
@@ -85,9 +131,16 @@ export default class Belt {
 
     update(delta) {
 
+        this.arrow.setPosition(
+            this.sprite.x - 7,
+            this.sprite.y - 12
+        );
+
     }
 
     destroy() {
+
+        this.arrow.destroy();
 
         this.sprite.destroy();
 

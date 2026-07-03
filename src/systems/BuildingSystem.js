@@ -13,19 +13,56 @@ export default class BuildingSystem {
 
     add(building) {
 
-        this.buildings.push(building);
+        for (const other of this.buildings) {
+
+            if (
+                other.x === building.x &&
+                other.y === building.y
+            ) {
+
+                building.destroy();
+
+                return false;
+
+            }
+
+        }
+
+        this.buildings.push(
+            building
+        );
+
+        return true;
 
     }
 
     remove(building) {
 
-        const index = this.buildings.indexOf(building);
+        const index = this.buildings.indexOf(
+            building
+        );
 
         if (index !== -1) {
 
-            this.buildings.splice(index, 1);
+            this.buildings.splice(
+                index,
+                1
+            );
 
         }
+
+    }
+
+    getBuildingAt(x, y) {
+
+        return this.buildings.find(building => {
+
+            return (
+                building.x === x &&
+                building.y === y
+            );
+
+        });
 
     }
 

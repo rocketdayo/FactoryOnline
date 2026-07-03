@@ -45,6 +45,12 @@ export default class InputSystem {
 
     }
 
+    getPointer() {
+
+        return this.scene.input.activePointer;
+
+    }
+
     onMine(callback) {
 
         this.scene.input.keyboard.on(
@@ -58,6 +64,15 @@ export default class InputSystem {
 
         this.scene.input.keyboard.on(
             "keydown-ONE",
+            callback
+        );
+
+    }
+
+    onRotate(callback) {
+
+        this.scene.input.keyboard.on(
+            "keydown-R",
             callback
         );
 
