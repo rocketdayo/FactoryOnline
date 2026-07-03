@@ -9,8 +9,8 @@ export default class Player {
 
         this.inventory = new Inventory(20);
 
-        // ① physics spriteとして作る（重要）
-        this.sprite = scene.physics.add.rectangle(
+        // 見た目（rectangle）
+        this.sprite = scene.add.rectangle(
             x,
             y,
             24,
@@ -18,10 +18,12 @@ export default class Player {
             0x00ff88
         );
 
-        // ② ワールド内制限
+        // 物理を後付けする（これが正解）
+        scene.physics.add.existing(this.sprite);
+
         this.sprite.body.setCollideWorldBounds(true);
 
-        // ③ 見た目の優先度（重要）
+        // 表示優先度
         this.sprite.setDepth(100);
 
         this.speed = GameConfig.PLAYER.SPEED;
