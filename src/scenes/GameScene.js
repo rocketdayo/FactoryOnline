@@ -5,17 +5,22 @@ import Phaser from "phaser";
 
 import Player from "../entities/Player.js";
 
+import Belt from "../buildings/Belt.js";
+
 import CameraSystem from "../systems/CameraSystem.js";
 import InputSystem from "../systems/InputSystem.js";
 import UISystem from "../systems/UISystem.js";
 import WorldSystem from "../systems/WorldSystem.js";
 import MiningSystem from "../systems/MiningSystem.js";
 import ItemSystem from "../systems/ItemSystem.js";
+import BuildingSystem from "../systems/BuildingSystem.js";
 
 export default class GameScene extends Phaser.Scene {
 
     constructor() {
+
         super("GameScene");
+
     }
 
     create() {
@@ -28,6 +33,8 @@ export default class GameScene extends Phaser.Scene {
             this,
             this.player
         );
+
+        this.buildingSystem = new BuildingSystem(this);
 
         this.cameraSystem = new CameraSystem(this);
 
@@ -50,8 +57,47 @@ export default class GameScene extends Phaser.Scene {
             this.player.sprite
         );
 
+        this.selectedBuilding = null;
+
         this.inputSystem.onMine(() => {
+
             this.miningSystem.mine();
+
+        });
+
+        this.inputSystem.onSelectBelt(() => {
+
+            this.selectedBuilding = "belt";
+
+        });
+
+        this.inputSystem.onLeftClick(pointer => {
+
+            if (this.selectedBuilding !== "belt") {
+
+                return;
+
+            }
+
+            const worldPoint = pointer.positionToCamera(
+                this.cameras.main
+            );
+
+            const size = 32;
+
+            const x = Math.floor(worldPoint.x / size) * size + size / 2;
+            const y = Math.floor(worldPoint.y / size) * size + size / 2;
+
+            const belt = new Belt(
+                this,
+                x,
+                y
+            );
+
+            this.buildingSystem.add(
+                belt
+            );
+
         });
 
     }
@@ -64,6 +110,8 @@ export default class GameScene extends Phaser.Scene {
         );
 
         this.itemSystem.update();
+
+        this.buildingSystem.update(delta);
 
         this.uiSystem.update(delta);
 

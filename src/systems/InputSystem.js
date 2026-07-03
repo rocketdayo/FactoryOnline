@@ -1,3 +1,6 @@
+// src/systems/InputSystem.js
+// updated: 2026-07-03
+
 export default class InputSystem {
 
     constructor(scene) {
@@ -7,7 +10,7 @@ export default class InputSystem {
         this.cursors = scene.input.keyboard.createCursorKeys();
 
         this.keys = scene.input.keyboard.addKeys(
-            "W,A,S,D,E"
+            "ONE,W,A,S,D,E,R"
         );
 
     }
@@ -47,6 +50,32 @@ export default class InputSystem {
         this.scene.input.keyboard.on(
             "keydown-E",
             callback
+        );
+
+    }
+
+    onSelectBelt(callback) {
+
+        this.scene.input.keyboard.on(
+            "keydown-ONE",
+            callback
+        );
+
+    }
+
+    onLeftClick(callback) {
+
+        this.scene.input.on(
+            "pointerdown",
+            pointer => {
+
+                if (pointer.leftButtonDown()) {
+
+                    callback(pointer);
+
+                }
+
+            }
         );
 
     }
