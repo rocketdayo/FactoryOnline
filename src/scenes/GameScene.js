@@ -20,14 +20,8 @@ export default class GameScene extends Phaser.Scene {
 
     create() {
 
-        // =========================
-        // Player
-        // =========================
         this.player = new Player(this, 400, 300);
 
-        // =========================
-        // Systems
-        // =========================
         this.worldSystem = new WorldSystem(this);
 
         this.itemSystem = new ItemSystem(
@@ -52,16 +46,10 @@ export default class GameScene extends Phaser.Scene {
             this.itemSystem
         );
 
-        // =========================
-        // Camera
-        // =========================
         this.cameraSystem.initialize(
             this.player.sprite
         );
 
-        // =========================
-        // Input
-        // =========================
         this.inputSystem.onMine(() => {
             this.miningSystem.mine();
         });
@@ -70,18 +58,13 @@ export default class GameScene extends Phaser.Scene {
 
     update(time, delta) {
 
-        // Player movement
-        const move = this.inputSystem.getMovementInput();
-
         this.player.update(
-            move.vx,
-            move.vy
+            this.inputSystem.cursors,
+            this.inputSystem.keys
         );
 
-        // Item system update
         this.itemSystem.update();
 
-        // UI update
         this.uiSystem.update(delta);
 
     }
