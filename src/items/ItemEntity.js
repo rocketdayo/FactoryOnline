@@ -1,3 +1,6 @@
+// src/items/ItemEntity.js
+// updated: 2026-07-03
+
 export default class ItemEntity {
 
     constructor(scene, x, y, item) {
@@ -23,25 +26,22 @@ export default class ItemEntity {
 
         }
 
-        this.sprite = scene.add.circle(
-            x,
-            y,
-            6,
-            color
-        );
+        // ⚠️ physics imageに変更（重要）
+        this.sprite = scene.physics.add.image(x, y, null);
 
-        scene.physics.add.existing(this.sprite);
+        this.sprite.setDisplaySize(12, 12);
+        this.sprite.setTint(color);
 
         this.sprite.body.setCircle(6);
 
-        this.sprite.body.setVelocity(
-            Phaser.Math.Between(-200, 200),
-            Phaser.Math.Between(-250, -80)
+        // 飛び出し
+        this.sprite.setVelocity(
+            Phaser.Math.Between(-220, 220),
+            Phaser.Math.Between(-350, -120)
         );
 
-        this.sprite.body.setDrag(120);
-
-        this.sprite.body.setBounce(0.6);
+        this.sprite.setDrag(120);
+        this.sprite.setBounce(0.5);
 
     }
 
@@ -56,7 +56,7 @@ export default class ItemEntity {
 
         if (dist < 120) {
 
-            this.sprite.body.setVelocity(
+            this.sprite.setVelocity(
                 dx * 5,
                 dy * 5
             );
