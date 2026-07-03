@@ -1,5 +1,5 @@
 // src/buildings/Belt.js
-// updated: 2026-07-03 (v0.2.6)
+// updated: 2026-07-03 (v0.2.8)
 
 export default class Belt {
 
@@ -13,7 +13,6 @@ export default class Belt {
         this.direction = direction;
 
         this.speed = 90;
-
         this.centerForce = 8;
 
         this.sprite = scene.add.rectangle(
@@ -34,11 +33,18 @@ export default class Belt {
             }
         );
 
-        this.setDirection(direction);
-
         scene.physics.add.existing(this.sprite);
 
         this.sprite.body.setImmovable(true);
+
+        this.connections = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        };
+
+        this.setDirection(direction);
 
     }
 
@@ -46,33 +52,97 @@ export default class Belt {
 
         this.direction = direction;
 
-        switch (direction) {
+        this.updateArrow();
+
+    }
+
+    updateArrow() {
+
+        const c = this.connections;
+
+        if (c.up && c.down && c.left && c.right) {
+            this.arrow.setText("┼");
+            return;
+        }
+
+        if (c.up && c.down && c.left) {
+            this.arrow.setText("┤");
+            return;
+        }
+
+        if (c.up && c.down && c.right) {
+            this.arrow.setText("├");
+            return;
+        }
+
+        if (c.left && c.right && c.up) {
+            this.arrow.setText("┴");
+            return;
+        }
+
+        if (c.left && c.right && c.down) {
+            this.arrow.setText("┬");
+            return;
+        }
+
+        if (c.left && c.right) {
+            this.arrow.setText("─");
+            return;
+        }
+
+        if (c.up && c.down) {
+            this.arrow.setText("│");
+            return;
+        }
+
+        switch (this.direction) {
 
             case "right":
-
                 this.arrow.setText("▶");
-
-                break;
-
-            case "down":
-
-                this.arrow.setText("▼");
-
                 break;
 
             case "left":
-
                 this.arrow.setText("◀");
-
                 break;
 
             case "up":
-
                 this.arrow.setText("▲");
+                break;
 
+            case "down":
+                this.arrow.setText("▼");
                 break;
 
         }
+
+    }
+
+    updateConnections(buildings) {
+
+        this.connections.up = false;
+        this.connections.down = false;
+        this.connections.left = false;
+        this.connections.right = false;
+
+        for (const b of buildings) {
+
+            if (b === this) continue;
+
+            const dx = b.x - this.x;
+            const dy = b.y - this.y;
+
+            const dist = Math.abs(dx) + Math.abs(dy);
+
+            if (dist !== 32) continue;
+
+            if (dx === 32) this.connections.right = true;
+            if (dx === -32) this.connections.left = true;
+            if (dy === 32) this.connections.down = true;
+            if (dy === -32) this.connections.up = true;
+
+        }
+
+        this.updateArrow();
 
     }
 
@@ -133,7 +203,9 @@ export default class Belt {
 
     }
 
-    update(delta) {
+    update(delta, buildings) {
+
+        this.updateConnections(buildings);
 
         this.arrow.setPosition(
             this.sprite.x - 7,
@@ -145,7 +217,6 @@ export default class Belt {
     destroy() {
 
         this.arrow.destroy();
-
         this.sprite.destroy();
 
     }
