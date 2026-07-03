@@ -2,12 +2,13 @@ import ItemDatabase from "../items/ItemDatabase.js";
 
 export default class MiningSystem {
 
-    constructor(scene, worldSystem, player, uiSystem) {
+    constructor(scene, worldSystem, player, uiSystem, itemSystem) {
 
         this.scene = scene;
         this.worldSystem = worldSystem;
         this.player = player;
         this.uiSystem = uiSystem;
+        this.itemSystem = itemSystem;
 
     }
 
@@ -23,35 +24,35 @@ export default class MiningSystem {
 
         if (!destroyed) return;
 
+        let item = null;
+
         switch (ore.type) {
 
             case "iron":
-
-                this.player.inventory.addItem(
-                    ItemDatabase.ironOre
-                );
-
+                item = ItemDatabase.ironOre;
                 break;
 
             case "copper":
-
-                this.player.inventory.addItem(
-                    ItemDatabase.copperOre
-                );
-
+                item = ItemDatabase.copperOre;
                 break;
 
             case "gold":
-
-                this.player.inventory.addItem(
-                    ItemDatabase.goldOre
-                );
-
+                item = ItemDatabase.goldOre;
                 break;
 
         }
 
-        this.uiSystem.inventoryUI.update();
+        // 👉 インベントリ直追加をやめる
+        // 👉 アイテムを地面に出す
+        if (item) {
+
+            this.itemSystem.spawn(
+                item,
+                ore.sprite.x,
+                ore.sprite.y
+            );
+
+        }
 
     }
 

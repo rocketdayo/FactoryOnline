@@ -1,3 +1,6 @@
+// src/scenes/GameScene.js
+// updated: 2026-07-03
+
 import Phaser from "phaser";
 
 import Player from "../entities/Player.js";
@@ -7,22 +10,30 @@ import InputSystem from "../systems/InputSystem.js";
 import UISystem from "../systems/UISystem.js";
 import WorldSystem from "../systems/WorldSystem.js";
 import MiningSystem from "../systems/MiningSystem.js";
+import ItemSystem from "../systems/ItemSystem.js";
 
 export default class GameScene extends Phaser.Scene {
 
     constructor() {
-
         super("GameScene");
-
     }
 
     create() {
 
-        // プレイヤー
+        // =========================
+        // Player
+        // =========================
         this.player = new Player(this, 400, 300);
 
-        // システム
+        // =========================
+        // Systems
+        // =========================
         this.worldSystem = new WorldSystem(this);
+
+        this.itemSystem = new ItemSystem(
+            this,
+            this.player
+        );
 
         this.cameraSystem = new CameraSystem(this);
 
@@ -37,30 +48,40 @@ export default class GameScene extends Phaser.Scene {
             this,
             this.worldSystem,
             this.player,
-            this.uiSystem
+            this.uiSystem,
+            this.itemSystem
         );
 
-        // カメラ初期化
+        // =========================
+        // Camera
+        // =========================
         this.cameraSystem.initialize(
             this.player.sprite
         );
 
-        // 採掘キー
+        // =========================
+        // Input
+        // =========================
         this.inputSystem.onMine(() => {
-
             this.miningSystem.mine();
-
         });
 
     }
 
     update(time, delta) {
 
+        // Player movement
+        const move = this.inputSystem.getMovementInput();
+
         this.player.update(
-            this.inputSystem.cursors,
-            this.inputSystem.keys
+            move.vx,
+            move.vy
         );
 
+        // Item system update
+        this.itemSystem.update();
+
+        // UI update
         this.uiSystem.update(delta);
 
     }

@@ -1,3 +1,7 @@
+
+// src/items/ItemEntity.js
+// updated: 2026-07-03
+
 export default class ItemEntity {
 
     constructor(scene, x, y, item) {
@@ -5,17 +9,44 @@ export default class ItemEntity {
         this.scene = scene;
         this.item = item;
 
+        // =========================
+        // 色分け（アイテム種類）
+        // =========================
+        let color = 0xffffff;
+
+        switch (item.id) {
+
+            case "ironOre":
+                color = 0x8c8c8c;
+                break;
+
+            case "copperOre":
+                color = 0xd17b0f;
+                break;
+
+            case "goldOre":
+                color = 0xffd700;
+                break;
+
+        }
+
+        // =========================
+        // 見た目
+        // =========================
         this.sprite = scene.add.circle(
             x,
             y,
             6,
-            0xffffff
+            color
         );
 
         scene.physics.add.existing(this.sprite);
 
         this.sprite.body.setCircle(6);
 
+        // =========================
+        // 初期ばらけ
+        // =========================
         this.sprite.body.setVelocity(
             Phaser.Math.Between(-80, 80),
             Phaser.Math.Between(-80, 80)
@@ -34,6 +65,9 @@ export default class ItemEntity {
 
         const dist = Math.sqrt(dx * dx + dy * dy);
 
+        // =========================
+        // 吸引
+        // =========================
         if (dist < 120) {
 
             this.sprite.body.setVelocity(
@@ -43,6 +77,9 @@ export default class ItemEntity {
 
         }
 
+        // =========================
+        // 取得
+        // =========================
         if (dist < 18) {
 
             this.sprite.destroy();
