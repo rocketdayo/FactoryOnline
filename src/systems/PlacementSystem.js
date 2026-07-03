@@ -1,5 +1,5 @@
 // src/systems/PlacementSystem.js
-// updated: 2026-07-03 (v0.2.7)
+// updated: 2026-07-03 (v0.2.8)
 
 import Belt from "../buildings/Belt.js";
 import GhostBelt from "../buildings/GhostBelt.js";
@@ -24,13 +24,11 @@ export default class PlacementSystem {
         this.lastGridX = null;
         this.lastGridY = null;
 
+        this.ghosts = [];
+
         this.scene.input.on("pointerdown", pointer => {
 
-            if (!pointer.leftButtonDown()) {
-
-                return;
-
-            }
+            if (!pointer.leftButtonDown()) return;
 
             this.dragging = true;
 
@@ -44,6 +42,8 @@ export default class PlacementSystem {
 
             this.lastGridX = null;
             this.lastGridY = null;
+
+            this.clearGhosts();
 
         });
 
@@ -65,9 +65,7 @@ export default class PlacementSystem {
 
         this.ghost.show();
 
-        this.ghost.setDirection(
-            this.direction
-        );
+        this.ghost.setDirection(this.direction);
 
     }
 
@@ -80,33 +78,21 @@ export default class PlacementSystem {
             "up"
         ];
 
-        let index = directions.indexOf(
-            this.direction
-        );
+        let index = directions.indexOf(this.direction);
 
         index++;
 
-        if (index >= directions.length) {
-
-            index = 0;
-
-        }
+        if (index >= directions.length) index = 0;
 
         this.direction = directions[index];
 
-        this.ghost.setDirection(
-            this.direction
-        );
+        this.ghost.setDirection(this.direction);
 
     }
 
     place(pointer) {
 
-        if (this.selectedBuilding !== "belt") {
-
-            return;
-
-        }
+        if (this.selectedBuilding !== "belt") return;
 
         const world = pointer.positionToCamera(
             this.scene.cameras.main
@@ -117,14 +103,7 @@ export default class PlacementSystem {
         const x = Math.floor(world.x / size) * size + size / 2;
         const y = Math.floor(world.y / size) * size + size / 2;
 
-        if (
-            x === this.lastGridX &&
-            y === this.lastGridY
-        ) {
-
-            return;
-
-        }
+        if (x === this.lastGridX && y === this.lastGridY) return;
 
         this.lastGridX = x;
         this.lastGridY = y;
@@ -136,33 +115,94 @@ export default class PlacementSystem {
             this.direction,
             Belt
         );
-
     }
 
-    update() {
+    updateGhostLine(pointer) {
 
-        if (this.selectedBuilding === null) {
+        const world = pointer.positionToCamera(
+            this.scene.cameras.main
+        );
+
+        const size = 32;
+
+        const x = Math.floor(world.x / size) * size + size / 2;
+        const y = Math.floor(world.y / size) * size + size / 2;
+
+        this.clearGhosts();
+
+        if (this.lastGridX === null || this.lastGridY === null) {
+
+            this.addGhost(x, y);
 
             return;
 
         }
 
-        const pointer = this.inputSystem.getPointer();
+        const dx = x - this.lastGridX;
+        const dy = y - this.lastGridY;
 
-        this.ghost.update(
-            pointer
+        const steps = Math.max(
+            Math.abs(dx),
+            Math.abs(dy)
+        ) / size;
+
+        const stepX = dx === 0 ? 0 : Math.sign(dx) * size;
+        const stepY = dy === 0 ? 0 : Math.sign(dy) * size;
+
+        let cx = this.lastGridX;
+        let cy = this.lastGridY;
+
+        for (let i = 0; i < steps; i++) {
+
+            cx += stepX;
+            cy += stepY;
+
+            this.addGhost(cx, cy);
+        }
+    }
+
+    addGhost(x, y) {
+
+        const g = this.scene.add.rectangle(
+            x,
+            y,
+            32,
+            32,
+            0x3b82f6,
+            0.25
         );
 
-        if (
-            this.dragging &&
-            this.inputSystem.isShiftDown()
-        ) {
+        this.ghosts.push(g);
 
-            this.place(
-                pointer
-            );
+    }
+
+    clearGhosts() {
+
+        for (const g of this.ghosts) {
+
+            g.destroy();
 
         }
+
+        this.ghosts = [];
+
+    }
+
+    update() {
+
+        if (this.selectedBuilding === null) return;
+
+        const pointer = this.inputSystem.getPointer();
+
+        this.ghost.update(pointer);
+
+        if (this.dragging && this.inputSystem.isShiftDown()) {
+
+            this.place(pointer);
+
+        }
+
+        this.updateGhostLine(pointer);
 
     }
 
