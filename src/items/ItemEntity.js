@@ -8,6 +8,8 @@ export default class ItemEntity {
         this.scene = scene;
         this.item = item;
 
+        this.spawnTime = scene.time.now;
+
         let color = 0xffffff;
 
         switch (item.id) {
@@ -26,22 +28,25 @@ export default class ItemEntity {
 
         }
 
-        // ⚠️ physics imageに変更（重要）
-        this.sprite = scene.physics.add.image(x, y, null);
+        this.sprite = scene.add.circle(
+            x,
+            y,
+            6,
+            color
+        );
 
-        this.sprite.setDisplaySize(12, 12);
-        this.sprite.setTint(color);
+        scene.physics.add.existing(this.sprite);
 
         this.sprite.body.setCircle(6);
 
-        // 飛び出し
-        this.sprite.setVelocity(
-            Phaser.Math.Between(-220, 220),
-            Phaser.Math.Between(-350, -120)
+        this.sprite.body.setVelocity(
+            Phaser.Math.Between(-200, 200),
+            Phaser.Math.Between(-260, -120)
         );
 
-        this.sprite.setDrag(120);
-        this.sprite.setBounce(0.5);
+        this.sprite.body.setDrag(120);
+
+        this.sprite.body.setBounce(0.6);
 
     }
 
@@ -54,12 +59,17 @@ export default class ItemEntity {
 
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 120) {
+        // 👉 少し遅らせて吸引開始
+        if (this.scene.time.now - this.spawnTime > 200) {
 
-            this.sprite.setVelocity(
-                dx * 5,
-                dy * 5
-            );
+            if (dist < 120) {
+
+                this.sprite.body.setVelocity(
+                    dx * 5,
+                    dy * 5
+                );
+
+            }
 
         }
 
