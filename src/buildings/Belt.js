@@ -73,7 +73,6 @@ export default class Belt {
         if (c.up && c.down && c.left && c.right) {
 
             this.arrow.setText("┼");
-
             return;
 
         }
@@ -81,7 +80,6 @@ export default class Belt {
         if (c.up && c.down && c.left) {
 
             this.arrow.setText("┤");
-
             return;
 
         }
@@ -89,7 +87,6 @@ export default class Belt {
         if (c.up && c.down && c.right) {
 
             this.arrow.setText("├");
-
             return;
 
         }
@@ -97,7 +94,6 @@ export default class Belt {
         if (c.left && c.right && c.up) {
 
             this.arrow.setText("┴");
-
             return;
 
         }
@@ -105,7 +101,6 @@ export default class Belt {
         if (c.left && c.right && c.down) {
 
             this.arrow.setText("┬");
-
             return;
 
         }
@@ -113,7 +108,6 @@ export default class Belt {
         if (c.left && c.right) {
 
             this.arrow.setText("─");
-
             return;
 
         }
@@ -121,7 +115,6 @@ export default class Belt {
         if (c.up && c.down) {
 
             this.arrow.setText("│");
-
             return;
 
         }
@@ -131,25 +124,21 @@ export default class Belt {
             case "right":
 
                 this.arrow.setText("▶");
-
                 break;
 
             case "left":
 
                 this.arrow.setText("◀");
-
                 break;
 
             case "up":
 
                 this.arrow.setText("▲");
-
                 break;
 
             case "down":
 
                 this.arrow.setText("▼");
-
                 break;
 
         }
@@ -158,17 +147,9 @@ export default class Belt {
 
     contains(item) {
 
-        const dx = Math.abs(
-            item.sprite.x - this.x
-        );
-
-        const dy = Math.abs(
-            item.sprite.y - this.y
-        );
-
         return (
-            dx < 16 &&
-            dy < 16
+            Math.abs(item.sprite.x - this.x) < 16 &&
+            Math.abs(item.sprite.y - this.y) < 16
         );
 
     }

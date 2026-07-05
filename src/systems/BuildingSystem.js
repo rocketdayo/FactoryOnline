@@ -116,11 +116,11 @@ export default class BuildingSystem {
 
         ];
 
-        for (const pos of positions) {
+        for (const [px, py] of positions) {
 
             const building = this.getBuildingAt(
-                pos[0],
-                pos[1]
+                px,
+                py
             );
 
             if (!building) {
@@ -187,9 +187,7 @@ export default class BuildingSystem {
 
             if (typeof building.update === "function") {
 
-                building.update(
-                    delta
-                );
+                building.update(delta);
 
             }
 

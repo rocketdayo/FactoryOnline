@@ -7,15 +7,13 @@ export default class GhostBelt {
 
         this.scene = scene;
 
-        this.direction = "right";
-
         this.sprite = scene.add.rectangle(
             0,
             0,
             32,
             32,
             0x3b82f6,
-            0.35
+            0.4
         );
 
         this.arrow = scene.add.text(
@@ -30,6 +28,8 @@ export default class GhostBelt {
 
         this.sprite.setVisible(false);
         this.arrow.setVisible(false);
+
+        this.direction = "right";
 
     }
 
@@ -85,25 +85,17 @@ export default class GhostBelt {
 
     update(pointer) {
 
-        if (!pointer) {
-
-            return;
-
-        }
-
         const world = pointer.positionToCamera(
             this.scene.cameras.main
         );
 
         const size = 32;
 
-        const x = Math.floor(
-            world.x / size
-        ) * size + size / 2;
+        const x =
+            Math.floor(world.x / size) * size + size / 2;
 
-        const y = Math.floor(
-            world.y / size
-        ) * size + size / 2;
+        const y =
+            Math.floor(world.y / size) * size + size / 2;
 
         this.sprite.setPosition(
             x,

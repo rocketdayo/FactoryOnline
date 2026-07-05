@@ -18,49 +18,60 @@ export default class PlacementSystem {
 
         this.direction = "right";
 
+        this.ghost = new GhostBelt(scene);
+
+        this.ghostPool = new GhostPool(scene);
+
         this.dragging = false;
 
-        this.lastGridX = null;
-        this.lastGridY = null;
+        this.startGridX = null;
+        this.startGridY = null;
 
-        this.ghost = new GhostBelt(
-            scene
-        );
+        this.lastPlacedX = null;
+        this.lastPlacedY = null;
 
-        this.ghostPool = new GhostPool(
-            scene
-        );
+        scene.input.on("pointerdown", pointer => {
 
-        scene.input.on(
-            "pointerdown",
-            pointer => {
+            if (!pointer.leftButtonDown()) {
 
-                if (!pointer.leftButtonDown()) {
-
-                    return;
-
-                }
-
-                this.dragging = true;
-
-                this.place(pointer);
+                return;
 
             }
-        );
 
-        scene.input.on(
-            "pointerup",
-            () => {
+            this.dragging = true;
 
-                this.dragging = false;
+            const world = pointer.positionToCamera(
+                scene.cameras.main
+            );
 
-                this.lastGridX = null;
-                this.lastGridY = null;
+            const size = 32;
 
-                this.ghostPool.clear();
+            this.startGridX =
+                Math.floor(world.x / size) * size + size / 2;
 
-            }
-        );
+            this.startGridY =
+                Math.floor(world.y / size) * size + size / 2;
+
+            this.lastPlacedX = null;
+            this.lastPlacedY = null;
+
+            this.place(pointer);
+
+        });
+
+        scene.input.on("pointerup", () => {
+
+            this.dragging = false;
+
+            this.startGridX = null;
+            this.startGridY = null;
+
+            this.lastPlacedX = null;
+            this.lastPlacedY = null;
+
+            this.ghostPool.clear();
+
+        });
 
     }
 
@@ -90,58 +101,30 @@ export default class PlacementSystem {
 
     rotate() {
 
-        const directions = [
+        const dirs = [
             "right",
             "down",
             "left",
             "up"
         ];
 
-        let index = directions.indexOf(
+        let i = dirs.indexOf(
             this.direction
         );
 
-        index++;
+        i++;
 
-        if (index >= directions.length) {
+        if (i >= dirs.length) {
 
-            index = 0;
+            i = 0;
 
         }
 
-        this.direction = directions[index];
+        this.direction = dirs[i];
 
         this.ghost.setDirection(
             this.direction
         );
-
-    }
-
-    getGrid(pointer) {
-
-        const world = pointer.positionToCamera(
-            this.scene.cameras.main
-        );
-
-        const size = 32;
-
-        return {
-
-            x:
-                Math.floor(
-                    world.x / size
-                ) *
-                    size +
-                size / 2,
-
-            y:
-                Math.floor(
-                    world.y / size
-                ) *
-                    size +
-                size / 2
-
-        };
 
     }
 
@@ -153,26 +136,34 @@ export default class PlacementSystem {
 
         }
 
-        const grid = this.getGrid(
-            pointer
+        const world = pointer.positionToCamera(
+            this.scene.cameras.main
         );
 
+        const size = 32;
+
+        const x =
+            Math.floor(world.x / size) * size + size / 2;
+
+        const y =
+            Math.floor(world.y / size) * size + size / 2;
+
         if (
-            grid.x === this.lastGridX &&
-            grid.y === this.lastGridY
+            x === this.lastPlacedX &&
+            y === this.lastPlacedY
         ) {
 
             return;
 
         }
 
-        this.lastGridX = grid.x;
-        this.lastGridY = grid.y;
+        this.lastPlacedX = x;
+        this.lastPlacedY = y;
 
         this.buildingSystem.placeBelt(
             this.scene,
-            grid.x,
-            grid.y,
+            x,
+            y,
             this.direction,
             Belt
         );
@@ -199,26 +190,32 @@ export default class PlacementSystem {
             this.inputSystem.isShiftDown()
         ) {
 
-            this.place(
-                pointer
-            );
+            this.place(pointer);
 
         }
 
-        const current = this.getGrid(
-            pointer
-        );
-
         if (
             this.dragging &&
-            this.lastGridX !== null
+            this.startGridX !== null
         ) {
 
+            const world = pointer.positionToCamera(
+                this.scene.cameras.main
+            );
+
+            const size = 32;
+
+            const x =
+                Math.floor(world.x / size) * size + size / 2;
+
+            const y =
+                Math.floor(world.y / size) * size + size / 2;
+
             this.ghostPool.drawLine(
-                this.lastGridX,
-                this.lastGridY,
-                current.x,
-                current.y
+                this.startGridX,
+                this.startGridY,
+                x,
+                y
             );
 
         } else {

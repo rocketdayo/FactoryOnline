@@ -1,208 +1,100 @@
-// src/systems/PlacementSystem.js
-// updated: 2026-07-03 (v0.2.8)
+// src/systems/GhostPool.js
+// updated: 2026-07-05 (v0.2.8)
 
-import Belt from "../buildings/Belt.js";
-import GhostBelt from "../buildings/GhostBelt.js";
+export default class GhostPool {
 
-export default class PlacementSystem {
-
-    constructor(scene, inputSystem, buildingSystem) {
+    constructor(scene) {
 
         this.scene = scene;
 
-        this.inputSystem = inputSystem;
-        this.buildingSystem = buildingSystem;
-
-        this.selectedBuilding = null;
-
-        this.direction = "right";
-
-        this.ghost = new GhostBelt(scene);
-
-        this.dragging = false;
-
-        this.lastGridX = null;
-        this.lastGridY = null;
-
-        this.ghosts = [];
-
-        this.scene.input.on("pointerdown", pointer => {
-
-            if (!pointer.leftButtonDown()) return;
-
-            this.dragging = true;
-
-            this.place(pointer);
-
-        });
-
-        this.scene.input.on("pointerup", () => {
-
-            this.dragging = false;
-
-            this.lastGridX = null;
-            this.lastGridY = null;
-
-            this.clearGhosts();
-
-        });
+        this.pool = [];
+        this.active = [];
 
     }
 
-    toggleBelt() {
+    get() {
 
-        if (this.selectedBuilding === "belt") {
+        let ghost = this.pool.pop();
 
-            this.selectedBuilding = null;
+        if (!ghost) {
 
-            this.ghost.hide();
-
-            return;
+            ghost = this.scene.add.rectangle(
+                0,
+                0,
+                32,
+                32,
+                0x3b82f6,
+                0.25
+            );
 
         }
 
-        this.selectedBuilding = "belt";
+        ghost.setVisible(true);
 
-        this.ghost.show();
+        this.active.push(
+            ghost
+        );
 
-        this.ghost.setDirection(this.direction);
+        return ghost;
 
     }
 
-    rotate() {
+    clear() {
 
-        const directions = [
-            "right",
-            "down",
-            "left",
-            "up"
-        ];
+        while (this.active.length > 0) {
 
-        let index = directions.indexOf(this.direction);
+            const ghost = this.active.pop();
 
-        index++;
+            ghost.setVisible(false);
 
-        if (index >= directions.length) index = 0;
-
-        this.direction = directions[index];
-
-        this.ghost.setDirection(this.direction);
-
-    }
-
-    place(pointer) {
-
-        if (this.selectedBuilding !== "belt") return;
-
-        const world = pointer.positionToCamera(
-            this.scene.cameras.main
-        );
-
-        const size = 32;
-
-        const x = Math.floor(world.x / size) * size + size / 2;
-        const y = Math.floor(world.y / size) * size + size / 2;
-
-        if (x === this.lastGridX && y === this.lastGridY) return;
-
-        this.lastGridX = x;
-        this.lastGridY = y;
-
-        this.buildingSystem.placeBelt(
-            this.scene,
-            x,
-            y,
-            this.direction,
-            Belt
-        );
-    }
-
-    updateGhostLine(pointer) {
-
-        const world = pointer.positionToCamera(
-            this.scene.cameras.main
-        );
-
-        const size = 32;
-
-        const x = Math.floor(world.x / size) * size + size / 2;
-        const y = Math.floor(world.y / size) * size + size / 2;
-
-        this.clearGhosts();
-
-        if (this.lastGridX === null || this.lastGridY === null) {
-
-            this.addGhost(x, y);
-
-            return;
+            this.pool.push(
+                ghost
+            );
 
         }
 
-        const dx = x - this.lastGridX;
-        const dy = y - this.lastGridY;
+    }
+
+    drawLine(x1, y1, x2, y2) {
+
+        this.clear();
+
+        const size = 32;
+
+        const dx = x2 - x1;
+        const dy = y2 - y1;
 
         const steps = Math.max(
             Math.abs(dx),
             Math.abs(dy)
         ) / size;
 
-        const stepX = dx === 0 ? 0 : Math.sign(dx) * size;
-        const stepY = dy === 0 ? 0 : Math.sign(dy) * size;
+        const stepX =
+            dx === 0
+                ? 0
+                : Math.sign(dx) * size;
 
-        let cx = this.lastGridX;
-        let cy = this.lastGridY;
+        const stepY =
+            dy === 0
+                ? 0
+                : Math.sign(dy) * size;
+
+        let x = x1;
+        let y = y1;
 
         for (let i = 0; i < steps; i++) {
 
-            cx += stepX;
-            cy += stepY;
+            x += stepX;
+            y += stepY;
 
-            this.addGhost(cx, cy);
-        }
-    }
+            const ghost = this.get();
 
-    addGhost(x, y) {
-
-        const g = this.scene.add.rectangle(
-            x,
-            y,
-            32,
-            32,
-            0x3b82f6,
-            0.25
-        );
-
-        this.ghosts.push(g);
-
-    }
-
-    clearGhosts() {
-
-        for (const g of this.ghosts) {
-
-            g.destroy();
+            ghost.setPosition(
+                x,
+                y
+            );
 
         }
-
-        this.ghosts = [];
-
-    }
-
-    update() {
-
-        if (this.selectedBuilding === null) return;
-
-        const pointer = this.inputSystem.getPointer();
-
-        this.ghost.update(pointer);
-
-        if (this.dragging && this.inputSystem.isShiftDown()) {
-
-            this.place(pointer);
-
-        }
-
-        this.updateGhostLine(pointer);
 
     }
 
