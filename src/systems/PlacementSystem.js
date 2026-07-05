@@ -1,8 +1,9 @@
 // src/systems/PlacementSystem.js
-// updated: 2026-07-03 (v0.2.8)
+// updated: 2026-07-05 (v0.2.8)
 
 import Belt from "../buildings/Belt.js";
 import GhostBelt from "../buildings/GhostBelt.js";
+import GhostPool from "./GhostPool.js";
 
 export default class PlacementSystem {
 
@@ -17,35 +18,49 @@ export default class PlacementSystem {
 
         this.direction = "right";
 
-        this.ghost = new GhostBelt(scene);
-
         this.dragging = false;
 
         this.lastGridX = null;
         this.lastGridY = null;
 
-        this.ghosts = [];
+        this.ghost = new GhostBelt(
+            scene
+        );
 
-        this.scene.input.on("pointerdown", pointer => {
+        this.ghostPool = new GhostPool(
+            scene
+        );
 
-            if (!pointer.leftButtonDown()) return;
+        scene.input.on(
+            "pointerdown",
+            pointer => {
 
-            this.dragging = true;
+                if (!pointer.leftButtonDown()) {
 
-            this.place(pointer);
+                    return;
 
-        });
+                }
 
-        this.scene.input.on("pointerup", () => {
+                this.dragging = true;
 
-            this.dragging = false;
+                this.place(pointer);
 
-            this.lastGridX = null;
-            this.lastGridY = null;
+            }
+        );
 
-            this.clearGhosts();
+        scene.input.on(
+            "pointerup",
+            () => {
 
-        });
+                this.dragging = false;
+
+                this.lastGridX = null;
+                this.lastGridY = null;
+
+                this.ghostPool.clear();
+
+            }
+        );
 
     }
 
@@ -57,6 +72,8 @@ export default class PlacementSystem {
 
             this.ghost.hide();
 
+            this.ghostPool.clear();
+
             return;
 
         }
@@ -65,7 +82,9 @@ export default class PlacementSystem {
 
         this.ghost.show();
 
-        this.ghost.setDirection(this.direction);
+        this.ghost.setDirection(
+            this.direction
+        );
 
     }
 
@@ -78,131 +97,135 @@ export default class PlacementSystem {
             "up"
         ];
 
-        let index = directions.indexOf(this.direction);
+        let index = directions.indexOf(
+            this.direction
+        );
 
         index++;
 
-        if (index >= directions.length) index = 0;
+        if (index >= directions.length) {
+
+            index = 0;
+
+        }
 
         this.direction = directions[index];
 
-        this.ghost.setDirection(this.direction);
+        this.ghost.setDirection(
+            this.direction
+        );
+
+    }
+
+    getGrid(pointer) {
+
+        const world = pointer.positionToCamera(
+            this.scene.cameras.main
+        );
+
+        const size = 32;
+
+        return {
+
+            x:
+                Math.floor(
+                    world.x / size
+                ) *
+                    size +
+                size / 2,
+
+            y:
+                Math.floor(
+                    world.y / size
+                ) *
+                    size +
+                size / 2
+
+        };
 
     }
 
     place(pointer) {
 
-        if (this.selectedBuilding !== "belt") return;
-
-        const world = pointer.positionToCamera(
-            this.scene.cameras.main
-        );
-
-        const size = 32;
-
-        const x = Math.floor(world.x / size) * size + size / 2;
-        const y = Math.floor(world.y / size) * size + size / 2;
-
-        if (x === this.lastGridX && y === this.lastGridY) return;
-
-        this.lastGridX = x;
-        this.lastGridY = y;
-
-        this.buildingSystem.placeBelt(
-            this.scene,
-            x,
-            y,
-            this.direction,
-            Belt
-        );
-    }
-
-    updateGhostLine(pointer) {
-
-        const world = pointer.positionToCamera(
-            this.scene.cameras.main
-        );
-
-        const size = 32;
-
-        const x = Math.floor(world.x / size) * size + size / 2;
-        const y = Math.floor(world.y / size) * size + size / 2;
-
-        this.clearGhosts();
-
-        if (this.lastGridX === null || this.lastGridY === null) {
-
-            this.addGhost(x, y);
+        if (this.selectedBuilding !== "belt") {
 
             return;
 
         }
 
-        const dx = x - this.lastGridX;
-        const dy = y - this.lastGridY;
-
-        const steps = Math.max(
-            Math.abs(dx),
-            Math.abs(dy)
-        ) / size;
-
-        const stepX = dx === 0 ? 0 : Math.sign(dx) * size;
-        const stepY = dy === 0 ? 0 : Math.sign(dy) * size;
-
-        let cx = this.lastGridX;
-        let cy = this.lastGridY;
-
-        for (let i = 0; i < steps; i++) {
-
-            cx += stepX;
-            cy += stepY;
-
-            this.addGhost(cx, cy);
-        }
-    }
-
-    addGhost(x, y) {
-
-        const g = this.scene.add.rectangle(
-            x,
-            y,
-            32,
-            32,
-            0x3b82f6,
-            0.25
+        const grid = this.getGrid(
+            pointer
         );
 
-        this.ghosts.push(g);
+        if (
+            grid.x === this.lastGridX &&
+            grid.y === this.lastGridY
+        ) {
 
-    }
-
-    clearGhosts() {
-
-        for (const g of this.ghosts) {
-
-            g.destroy();
+            return;
 
         }
 
-        this.ghosts = [];
+        this.lastGridX = grid.x;
+        this.lastGridY = grid.y;
+
+        this.buildingSystem.placeBelt(
+            this.scene,
+            grid.x,
+            grid.y,
+            this.direction,
+            Belt
+        );
 
     }
 
     update() {
 
-        if (this.selectedBuilding === null) return;
+        if (this.selectedBuilding !== "belt") {
 
-        const pointer = this.inputSystem.getPointer();
-
-        this.ghost.update(pointer);
-
-        if (this.dragging && this.inputSystem.isShiftDown()) {
-
-            this.place(pointer);
+            return;
 
         }
 
-        this.updateGhostLine(pointer);
+        const pointer =
+            this.inputSystem.getPointer();
+
+        this.ghost.update(
+            pointer
+        );
+
+        if (
+            this.dragging &&
+            this.inputSystem.isShiftDown()
+        ) {
+
+            this.place(
+                pointer
+            );
+
+        }
+
+        const current = this.getGrid(
+            pointer
+        );
+
+        if (
+            this.dragging &&
+            this.lastGridX !== null
+        ) {
+
+            this.ghostPool.drawLine(
+                this.lastGridX,
+                this.lastGridY,
+                current.x,
+                current.y
+            );
+
+        } else {
+
+            this.ghostPool.clear();
+
+        }
 
     }
 

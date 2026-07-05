@@ -1,5 +1,5 @@
 // src/buildings/GhostBelt.js
-// updated: 2026-07-03 (v0.2.7)
+// updated: 2026-07-05 (v0.2.8)
 
 export default class GhostBelt {
 
@@ -7,13 +7,15 @@ export default class GhostBelt {
 
         this.scene = scene;
 
+        this.direction = "right";
+
         this.sprite = scene.add.rectangle(
             0,
             0,
             32,
             32,
             0x3b82f6,
-            0.4
+            0.35
         );
 
         this.arrow = scene.add.text(
@@ -29,8 +31,6 @@ export default class GhostBelt {
         this.sprite.setVisible(false);
         this.arrow.setVisible(false);
 
-        this.direction = "right";
-
     }
 
     setDirection(direction) {
@@ -40,19 +40,27 @@ export default class GhostBelt {
         switch (direction) {
 
             case "right":
+
                 this.arrow.setText("▶");
+
                 break;
 
             case "down":
+
                 this.arrow.setText("▼");
+
                 break;
 
             case "left":
+
                 this.arrow.setText("◀");
+
                 break;
 
             case "up":
+
                 this.arrow.setText("▲");
+
                 break;
 
         }
@@ -62,6 +70,7 @@ export default class GhostBelt {
     show() {
 
         this.sprite.setVisible(true);
+
         this.arrow.setVisible(true);
 
     }
@@ -69,11 +78,18 @@ export default class GhostBelt {
     hide() {
 
         this.sprite.setVisible(false);
+
         this.arrow.setVisible(false);
 
     }
 
     update(pointer) {
+
+        if (!pointer) {
+
+            return;
+
+        }
 
         const world = pointer.positionToCamera(
             this.scene.cameras.main
@@ -81,8 +97,13 @@ export default class GhostBelt {
 
         const size = 32;
 
-        const x = Math.floor(world.x / size) * size + size / 2;
-        const y = Math.floor(world.y / size) * size + size / 2;
+        const x = Math.floor(
+            world.x / size
+        ) * size + size / 2;
+
+        const y = Math.floor(
+            world.y / size
+        ) * size + size / 2;
 
         this.sprite.setPosition(
             x,

@@ -1,5 +1,5 @@
 // src/systems/BuildingSystem.js
-// updated: 2026-07-03 (v0.2.7)
+// updated: 2026-07-05 (v0.2.8)
 
 export default class BuildingSystem {
 
@@ -13,23 +13,24 @@ export default class BuildingSystem {
 
     add(building) {
 
-        for (const other of this.buildings) {
+        if (this.getBuildingAt(
+            building.x,
+            building.y
+        )) {
 
-            if (
-                other.x === building.x &&
-                other.y === building.y
-            ) {
+            building.destroy();
 
-                building.destroy();
-
-                return false;
-
-            }
+            return false;
 
         }
 
         this.buildings.push(
             building
+        );
+
+        this.updateConnectionsAround(
+            building.x,
+            building.y
         );
 
         return true;
@@ -42,14 +43,21 @@ export default class BuildingSystem {
             building
         );
 
-        if (index !== -1) {
+        if (index === -1) {
 
-            this.buildings.splice(
-                index,
-                1
-            );
+            return;
 
         }
+
+        this.buildings.splice(
+            index,
+            1
+        );
+
+        this.updateConnectionsAround(
+            building.x,
+            building.y
+        );
 
     }
 
@@ -62,7 +70,86 @@ export default class BuildingSystem {
                 building.y === y
             );
 
-        });
+        }) || null;
+
+    }
+
+    getNeighbors(x, y) {
+
+        return {
+
+            up: this.getBuildingAt(
+                x,
+                y - 32
+            ),
+
+            down: this.getBuildingAt(
+                x,
+                y + 32
+            ),
+
+            left: this.getBuildingAt(
+                x - 32,
+                y
+            ),
+
+            right: this.getBuildingAt(
+                x + 32,
+                y
+            )
+
+        };
+
+    }
+
+    updateConnectionsAround(x, y) {
+
+        const positions = [
+
+            [x, y],
+
+            [x + 32, y],
+            [x - 32, y],
+
+            [x, y + 32],
+            [x, y - 32]
+
+        ];
+
+        for (const pos of positions) {
+
+            const building = this.getBuildingAt(
+                pos[0],
+                pos[1]
+            );
+
+            if (!building) {
+
+                continue;
+
+            }
+
+            if (typeof building.setConnections !== "function") {
+
+                continue;
+
+            }
+
+            const neighbors = this.getNeighbors(
+                building.x,
+                building.y
+            );
+
+            building.setConnections({
+
+                up: !!neighbors.up,
+                down: !!neighbors.down,
+                left: !!neighbors.left,
+                right: !!neighbors.right
+
+            });
+
+        }
 
     }
 
@@ -85,6 +172,11 @@ export default class BuildingSystem {
             belt
         );
 
+        this.updateConnectionsAround(
+            x,
+            y
+        );
+
         return true;
 
     }
@@ -95,7 +187,9 @@ export default class BuildingSystem {
 
             if (typeof building.update === "function") {
 
-                building.update(delta);
+                building.update(
+                    delta
+                );
 
             }
 
@@ -108,6 +202,15 @@ export default class BuildingSystem {
         }
 
         for (const building of this.buildings) {
+
+            if (
+                typeof building.contains !== "function" ||
+                typeof building.moveItem !== "function"
+            ) {
+
+                continue;
+
+            }
 
             for (const item of this.scene.itemSystem.items) {
 

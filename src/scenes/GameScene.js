@@ -1,5 +1,5 @@
 // src/scenes/GameScene.js
-// updated: 2026-07-03 (v0.2.7)
+// updated: 2026-07-05 (v0.2.8)
 
 import Phaser from "phaser";
 
@@ -24,20 +24,32 @@ export default class GameScene extends Phaser.Scene {
 
     create() {
 
-        this.player = new Player(this, 400, 300);
+        this.player = new Player(
+            this,
+            400,
+            300
+        );
 
-        this.worldSystem = new WorldSystem(this);
+        this.worldSystem = new WorldSystem(
+            this
+        );
 
         this.itemSystem = new ItemSystem(
             this,
             this.player
         );
 
-        this.buildingSystem = new BuildingSystem(this);
+        this.buildingSystem = new BuildingSystem(
+            this
+        );
 
-        this.cameraSystem = new CameraSystem(this);
+        this.cameraSystem = new CameraSystem(
+            this
+        );
 
-        this.inputSystem = new InputSystem(this);
+        this.inputSystem = new InputSystem(
+            this
+        );
 
         this.uiSystem = new UISystem(
             this,
@@ -84,7 +96,8 @@ export default class GameScene extends Phaser.Scene {
 
     update(time, delta) {
 
-        const move = this.inputSystem.getMovementInput();
+        const move =
+            this.inputSystem.getMovementInput();
 
         this.player.update(
             move.vx,
@@ -93,11 +106,15 @@ export default class GameScene extends Phaser.Scene {
 
         this.itemSystem.update();
 
-        this.buildingSystem.update(delta);
+        this.buildingSystem.update(
+            delta
+        );
 
         this.placementSystem.update();
 
-        this.uiSystem.update(delta);
+        this.uiSystem.update(
+            delta
+        );
 
     }
 
