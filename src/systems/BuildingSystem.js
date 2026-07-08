@@ -1,5 +1,7 @@
 // src/systems/BuildingSystem.js
-// updated: 2026-07-05 (v0.2.8)
+// updated: 2026-07-08 (v0.2.9)
+
+import ConveyorSystem from "./ConveyorSystem.js";
 
 export default class BuildingSystem {
 
@@ -9,14 +11,20 @@ export default class BuildingSystem {
 
         this.buildings = [];
 
+        this.conveyorSystem = new ConveyorSystem(
+            this
+        );
+
     }
 
     add(building) {
 
-        if (this.getBuildingAt(
-            building.x,
-            building.y
-        )) {
+        if (
+            this.getBuildingAt(
+                building.x,
+                building.y
+            )
+        ) {
 
             building.destroy();
 
@@ -39,9 +47,10 @@ export default class BuildingSystem {
 
     remove(building) {
 
-        const index = this.buildings.indexOf(
-            building
-        );
+        const index =
+            this.buildings.indexOf(
+                building
+            );
 
         if (index === -1) {
 
@@ -63,14 +72,16 @@ export default class BuildingSystem {
 
     getBuildingAt(x, y) {
 
-        return this.buildings.find(building => {
+        return (
+            this.buildings.find(building => {
 
-            return (
-                building.x === x &&
-                building.y === y
-            );
+                return (
+                    building.x === x &&
+                    building.y === y
+                );
 
-        }) || null;
+            }) || null
+        );
 
     }
 
@@ -118,10 +129,11 @@ export default class BuildingSystem {
 
         for (const [px, py] of positions) {
 
-            const building = this.getBuildingAt(
-                px,
-                py
-            );
+            const building =
+                this.getBuildingAt(
+                    px,
+                    py
+                );
 
             if (!building) {
 
@@ -129,16 +141,20 @@ export default class BuildingSystem {
 
             }
 
-            if (typeof building.setConnections !== "function") {
+            if (
+                typeof building.setConnections !==
+                "function"
+            ) {
 
                 continue;
 
             }
 
-            const neighbors = this.getNeighbors(
-                building.x,
-                building.y
-            );
+            const neighbors =
+                this.getNeighbors(
+                    building.x,
+                    building.y
+                );
 
             building.setConnections({
 
@@ -155,7 +171,12 @@ export default class BuildingSystem {
 
     placeBelt(scene, x, y, direction, BeltClass) {
 
-        if (this.getBuildingAt(x, y)) {
+        if (
+            this.getBuildingAt(
+                x,
+                y
+            )
+        ) {
 
             return false;
 
@@ -185,9 +206,14 @@ export default class BuildingSystem {
 
         for (const building of this.buildings) {
 
-            if (typeof building.update === "function") {
+            if (
+                typeof building.update ===
+                "function"
+            ) {
 
-                building.update(delta);
+                building.update(
+                    delta
+                );
 
             }
 
@@ -218,9 +244,23 @@ export default class BuildingSystem {
 
                 }
 
-                if (building.contains(item)) {
+                if (!building.contains(item)) {
 
-                    building.moveItem(item);
+                    continue;
+
+                }
+
+                building.moveItem(item);
+
+                if (
+                    typeof building.canTransfer === "function" &&
+                    building.canTransfer(item)
+                ) {
+
+                    this.conveyorSystem.transfer(
+                        item,
+                        building
+                    );
 
                 }
 

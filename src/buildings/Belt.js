@@ -1,5 +1,5 @@
 // src/buildings/Belt.js
-// updated: 2026-07-05 (v0.2.8)
+// updated: 2026-07-08 (v0.2.9)
 
 export default class Belt {
 
@@ -14,6 +14,8 @@ export default class Belt {
 
         this.speed = 90;
         this.centerForce = 8;
+
+        this.transferMargin = 12;
 
         this.connections = {
             up: false,
@@ -154,6 +156,36 @@ export default class Belt {
 
     }
 
+    canTransfer(item) {
+
+        switch (this.direction) {
+
+            case "right":
+
+                return item.sprite.x >=
+                    this.x + this.transferMargin;
+
+            case "left":
+
+                return item.sprite.x <=
+                    this.x - this.transferMargin;
+
+            case "up":
+
+                return item.sprite.y <=
+                    this.y - this.transferMargin;
+
+            case "down":
+
+                return item.sprite.y >=
+                    this.y + this.transferMargin;
+
+        }
+
+        return false;
+
+    }
+
     moveItem(item) {
 
         item.setState("BELT");
@@ -166,7 +198,8 @@ export default class Belt {
 
                 body.setVelocity(
                     this.speed,
-                    (this.y - item.sprite.y) * this.centerForce
+                    (this.y - item.sprite.y) *
+                    this.centerForce
                 );
 
                 break;
@@ -175,7 +208,8 @@ export default class Belt {
 
                 body.setVelocity(
                     -this.speed,
-                    (this.y - item.sprite.y) * this.centerForce
+                    (this.y - item.sprite.y) *
+                    this.centerForce
                 );
 
                 break;
@@ -183,7 +217,8 @@ export default class Belt {
             case "up":
 
                 body.setVelocity(
-                    (this.x - item.sprite.x) * this.centerForce,
+                    (this.x - item.sprite.x) *
+                    this.centerForce,
                     -this.speed
                 );
 
@@ -192,7 +227,8 @@ export default class Belt {
             case "down":
 
                 body.setVelocity(
-                    (this.x - item.sprite.x) * this.centerForce,
+                    (this.x - item.sprite.x) *
+                    this.centerForce,
                     this.speed
                 );
 
