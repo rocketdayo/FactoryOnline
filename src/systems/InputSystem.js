@@ -1,5 +1,5 @@
 // src/systems/InputSystem.js
-// updated: 2026-07-03 (v0.2.7)
+// updated: 2026-07-08 (v0.3.0)
 
 export default class InputSystem {
 
@@ -10,7 +10,7 @@ export default class InputSystem {
         this.cursors = scene.input.keyboard.createCursorKeys();
 
         this.keys = scene.input.keyboard.addKeys(
-            "ONE,W,A,S,D,E,R,SHIFT"
+            "ONE,TWO,W,A,S,D,E,R,SHIFT"
         );
 
     }
@@ -32,7 +32,10 @@ export default class InputSystem {
         if (this.cursors.up.isDown) vy--;
         if (this.cursors.down.isDown) vy++;
 
-        const length = Math.hypot(vx, vy);
+        const length = Math.hypot(
+            vx,
+            vy
+        );
 
         if (length > 0) {
 
@@ -41,7 +44,12 @@ export default class InputSystem {
 
         }
 
-        return { vx, vy };
+        return {
+
+            vx,
+            vy
+
+        };
 
     }
 
@@ -75,6 +83,15 @@ export default class InputSystem {
 
     }
 
+    onSelectChest(callback) {
+
+        this.scene.input.keyboard.on(
+            "keydown-TWO",
+            callback
+        );
+
+    }
+
     onRotate(callback) {
 
         this.scene.input.keyboard.on(
@@ -90,7 +107,9 @@ export default class InputSystem {
             "pointerdown",
             pointer => {
 
-                if (pointer.leftButtonDown()) {
+                if (
+                    pointer.leftButtonDown()
+                ) {
 
                     callback(pointer);
 

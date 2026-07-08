@@ -1,7 +1,8 @@
 // src/systems/PlacementSystem.js
-// updated: 2026-07-05 (v0.2.8)
+// updated: 2026-07-08 (v0.3.0)
 
 import Belt from "../buildings/Belt.js";
+import Chest from "../buildings/Chest.js";
 import GhostBelt from "../buildings/GhostBelt.js";
 import GhostPool from "./GhostPool.js";
 
@@ -12,6 +13,7 @@ export default class PlacementSystem {
         this.scene = scene;
 
         this.inputSystem = inputSystem;
+
         this.buildingSystem = buildingSystem;
 
         this.selectedBuilding = null;
@@ -24,54 +26,39 @@ export default class PlacementSystem {
 
         this.dragging = false;
 
-        this.startGridX = null;
-        this.startGridY = null;
+        this.lastGridX = null;
+        this.lastGridY = null;
 
-        this.lastPlacedX = null;
-        this.lastPlacedY = null;
+        this.scene.input.on(
+            "pointerdown",
+            pointer => {
 
-        scene.input.on("pointerdown", pointer => {
+                if (!pointer.leftButtonDown()) {
 
-            if (!pointer.leftButtonDown()) {
+                    return;
 
-                return;
+                }
+
+                this.dragging = true;
+
+                this.place(pointer);
 
             }
+        );
 
-            this.dragging = true;
+        this.scene.input.on(
+            "pointerup",
+            () => {
 
-            const world = pointer.positionToCamera(
-                scene.cameras.main
-            );
+                this.dragging = false;
 
-            const size = 32;
+                this.lastGridX = null;
+                this.lastGridY = null;
 
-            this.startGridX =
-                Math.floor(world.x / size) * size + size / 2;
+                this.ghostPool.clear();
 
-            this.startGridY =
-                Math.floor(world.y / size) * size + size / 2;
-
-            this.lastPlacedX = null;
-            this.lastPlacedY = null;
-
-            this.place(pointer);
-
-        });
-
-        scene.input.on("pointerup", () => {
-
-            this.dragging = false;
-
-            this.startGridX = null;
-            this.startGridY = null;
-
-            this.lastPlacedX = null;
-            this.lastPlacedY = null;
-
-            this.ghostPool.clear();
-
-        });
+            }
+        );
 
     }
 
@@ -99,28 +86,52 @@ export default class PlacementSystem {
 
     }
 
+    toggleChest() {
+
+        if (this.selectedBuilding === "chest") {
+
+            this.selectedBuilding = null;
+
+            this.ghost.hide();
+
+            this.ghostPool.clear();
+
+            return;
+
+        }
+
+        this.selectedBuilding = "chest";
+
+        this.ghost.show();
+
+    }
+
     rotate() {
 
-        const dirs = [
+        const directions = [
             "right",
             "down",
             "left",
             "up"
         ];
 
-        let i = dirs.indexOf(
-            this.direction
-        );
+        let index =
+            directions.indexOf(
+                this.direction
+            );
 
-        i++;
+        index++;
 
-        if (i >= dirs.length) {
+        if (
+            index >= directions.length
+        ) {
 
-            i = 0;
+            index = 0;
 
         }
 
-        this.direction = dirs[i];
+        this.direction =
+            directions[index];
 
         this.ghost.setDirection(
             this.direction
@@ -130,49 +141,158 @@ export default class PlacementSystem {
 
     place(pointer) {
 
-        if (this.selectedBuilding !== "belt") {
-
-            return;
-
-        }
-
-        const world = pointer.positionToCamera(
-            this.scene.cameras.main
-        );
+        const world =
+            pointer.positionToCamera(
+                this.scene.cameras.main
+            );
 
         const size = 32;
 
         const x =
-            Math.floor(world.x / size) * size + size / 2;
+            Math.floor(
+                world.x / size
+            ) * size + size / 2;
 
         const y =
-            Math.floor(world.y / size) * size + size / 2;
+            Math.floor(
+                world.y / size
+            ) * size + size / 2;
 
         if (
-            x === this.lastPlacedX &&
-            y === this.lastPlacedY
+            x === this.lastGridX &&
+            y === this.lastGridY
         ) {
 
             return;
 
         }
 
-        this.lastPlacedX = x;
-        this.lastPlacedY = y;
+        this.lastGridX = x;
+        this.lastGridY = y;
 
-        this.buildingSystem.placeBelt(
-            this.scene,
-            x,
-            y,
-            this.direction,
-            Belt
-        );
+        if (
+            this.selectedBuilding ===
+            "belt"
+        ) {
+
+            this.buildingSystem.placeBelt(
+                this.scene,
+                x,
+                y,
+                this.direction,
+                Belt
+            );
+
+            return;
+
+        }
+
+        if (
+            this.selectedBuilding ===
+            "chest"
+        ) {
+
+            const chest =
+                new Chest(
+                    this.scene,
+                    x,
+                    y
+                );
+
+            this.buildingSystem.add(
+                chest
+            );
+
+        }
+
+    }
+        updateGhostLine(pointer) {
+
+        const world =
+            pointer.positionToCamera(
+                this.scene.cameras.main
+            );
+
+        const size = 32;
+
+        const x =
+            Math.floor(
+                world.x / size
+            ) * size + size / 2;
+
+        const y =
+            Math.floor(
+                world.y / size
+            ) * size + size / 2;
+
+        this.ghostPool.clear();
+
+        if (
+            this.lastGridX === null ||
+            this.lastGridY === null
+        ) {
+
+            this.ghostPool.add(
+                x,
+                y
+            );
+
+            return;
+
+        }
+
+        const dx =
+            x - this.lastGridX;
+
+        const dy =
+            y - this.lastGridY;
+
+        const steps =
+            Math.max(
+                Math.abs(dx),
+                Math.abs(dy)
+            ) / size;
+
+        const stepX =
+            dx === 0
+                ? 0
+                : Math.sign(dx) * size;
+
+        const stepY =
+            dy === 0
+                ? 0
+                : Math.sign(dy) * size;
+
+        let cx =
+            this.lastGridX;
+
+        let cy =
+            this.lastGridY;
+
+        for (
+            let i = 0;
+            i < steps;
+            i++
+        ) {
+
+            cx += stepX;
+            cy += stepY;
+
+            this.ghostPool.add(
+                cx,
+                cy
+            );
+
+        }
 
     }
 
     update() {
 
-        if (this.selectedBuilding !== "belt") {
+        if (
+            this.selectedBuilding ===
+            null
+        ) {
 
             return;
 
@@ -190,39 +310,15 @@ export default class PlacementSystem {
             this.inputSystem.isShiftDown()
         ) {
 
-            this.place(pointer);
+            this.place(
+                pointer
+            );
 
         }
 
-        if (
-            this.dragging &&
-            this.startGridX !== null
-        ) {
-
-            const world = pointer.positionToCamera(
-                this.scene.cameras.main
-            );
-
-            const size = 32;
-
-            const x =
-                Math.floor(world.x / size) * size + size / 2;
-
-            const y =
-                Math.floor(world.y / size) * size + size / 2;
-
-            this.ghostPool.drawLine(
-                this.startGridX,
-                this.startGridY,
-                x,
-                y
-            );
-
-        } else {
-
-            this.ghostPool.clear();
-
-        }
+        this.updateGhostLine(
+            pointer
+        );
 
     }
 

@@ -1,5 +1,5 @@
 // src/systems/ConveyorSystem.js
-// updated: 2026-07-08 (v0.2.9)
+// updated: 2026-07-08 (v0.3.0)
 
 export default class ConveyorSystem {
 
@@ -98,7 +98,10 @@ export default class ConveyorSystem {
 
         }
 
-        if (typeof to.contains !== "function") {
+        if (
+            typeof to.moveItem !==
+            "function"
+        ) {
 
             return false;
 
@@ -110,14 +113,27 @@ export default class ConveyorSystem {
 
     transfer(item, currentBelt) {
 
-        const next = this.getNextBuilding(
-            currentBelt
-        );
+        const next =
+            this.getNextBuilding(
+                currentBelt
+            );
 
-        if (!this.canTransfer(
-            currentBelt,
-            next
-        )) {
+        if (
+            !this.canTransfer(
+                currentBelt,
+                next
+            )
+        ) {
+
+            return false;
+
+        }
+
+        if (
+            typeof next.canAccept ===
+            "function" &&
+            !next.canAccept(item)
+        ) {
 
             return false;
 

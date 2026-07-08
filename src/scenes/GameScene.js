@@ -1,5 +1,5 @@
 // src/scenes/GameScene.js
-// updated: 2026-07-05 (v0.2.8)
+// updated: 2026-07-08 (v0.3.0)
 
 import Phaser from "phaser";
 
@@ -13,6 +13,8 @@ import MiningSystem from "../systems/MiningSystem.js";
 import ItemSystem from "../systems/ItemSystem.js";
 import BuildingSystem from "../systems/BuildingSystem.js";
 import PlacementSystem from "../systems/PlacementSystem.js";
+
+import ChestUI from "../ui/ChestUI.js";
 
 export default class GameScene extends Phaser.Scene {
 
@@ -30,45 +32,58 @@ export default class GameScene extends Phaser.Scene {
             300
         );
 
-        this.worldSystem = new WorldSystem(
-            this
-        );
+        this.worldSystem =
+            new WorldSystem(
+                this
+            );
 
-        this.itemSystem = new ItemSystem(
-            this,
-            this.player
-        );
+        this.itemSystem =
+            new ItemSystem(
+                this,
+                this.player
+            );
 
-        this.buildingSystem = new BuildingSystem(
-            this
-        );
+        this.buildingSystem =
+            new BuildingSystem(
+                this
+            );
 
-        this.cameraSystem = new CameraSystem(
-            this
-        );
+        this.cameraSystem =
+            new CameraSystem(
+                this
+            );
 
-        this.inputSystem = new InputSystem(
-            this
-        );
+        this.inputSystem =
+            new InputSystem(
+                this
+            );
 
-        this.uiSystem = new UISystem(
-            this,
-            this.player
-        );
+        this.uiSystem =
+            new UISystem(
+                this,
+                this.player
+            );
 
-        this.miningSystem = new MiningSystem(
-            this,
-            this.worldSystem,
-            this.player,
-            this.uiSystem,
-            this.itemSystem
-        );
+        this.chestUI =
+            new ChestUI(
+                this
+            );
 
-        this.placementSystem = new PlacementSystem(
-            this,
-            this.inputSystem,
-            this.buildingSystem
-        );
+        this.miningSystem =
+            new MiningSystem(
+                this,
+                this.worldSystem,
+                this.player,
+                this.uiSystem,
+                this.itemSystem
+            );
+
+        this.placementSystem =
+            new PlacementSystem(
+                this,
+                this.inputSystem,
+                this.buildingSystem
+            );
 
         this.cameraSystem.initialize(
             this.player.sprite
@@ -85,6 +100,45 @@ export default class GameScene extends Phaser.Scene {
             this.placementSystem.toggleBelt();
 
         });
+
+        this.inputSystem.onSelectChest(() => {
+
+        this.placementSystem.toggleChest();
+
+        });
+
+        this.input.on(
+            "gameobjectdown",
+            (pointer, gameObject) => {
+
+                for (const building of this.buildingSystem.buildings) {
+
+                    if (
+                        building.sprite !==
+                        gameObject
+                    ) {
+
+                        continue;
+
+                    }
+
+                    if (
+                        typeof building.getItemCount !==
+                        "function"
+                    ) {
+
+                        continue;
+
+                    }
+
+                    this.chestUI.toggle(
+                        building
+                    );
+
+                }
+
+            }
+        );
 
         this.inputSystem.onRotate(() => {
 
@@ -115,6 +169,8 @@ export default class GameScene extends Phaser.Scene {
         this.uiSystem.update(
             delta
         );
+
+        this.chestUI.update();
 
     }
 
