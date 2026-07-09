@@ -119,4 +119,16 @@ export default class ItemEntity {
 
     }
 
+    destroy() {
+
+    if (this.sprite.body) {
+
+        this.sprite.body.stop();
+
+    }
+
+    this.sprite.destroy();
+
+    }
+
 }

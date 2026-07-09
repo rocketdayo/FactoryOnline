@@ -1,5 +1,5 @@
 // src/buildings/Chest.js
-// updated: 2026-07-08 (v0.3.0)
+// updated: 2026-07-09 (v0.3.0)
 
 import ChestInventory from "../items/ChestInventory.js";
 
@@ -51,24 +51,38 @@ export default class Chest {
     contains(item) {
 
         return (
-            Math.abs(item.sprite.x - this.x) < 16 &&
-            Math.abs(item.sprite.y - this.y) < 16
+
+            Math.abs(
+                item.sprite.x - this.x
+            ) < 16 &&
+
+            Math.abs(
+                item.sprite.y - this.y
+            ) < 16
+
         );
+
+    }
+
+    canAccept() {
+
+        return !this.inventory.isFull();
 
     }
 
     moveItem(item) {
 
-        if (!this.inventory.add(item)) {
+        if (
+            !this.inventory.add(
+                item.item
+            )
+        ) {
 
             return false;
 
         }
 
-        item.sprite.disableBody(
-            true,
-            true
-        );
+        item.destroy();
 
         return true;
 
