@@ -1,5 +1,5 @@
 // src/systems/GhostPool.js
-// updated: 2026-07-05 (v0.2.8)
+// updated: 2026-07-09 (v0.3.0)
 
 export default class GhostPool {
 
@@ -29,7 +29,9 @@ export default class GhostPool {
 
         }
 
-        ghost.setVisible(true);
+        ghost.setVisible(
+            true
+        );
 
         this.active.push(
             ghost
@@ -39,13 +41,31 @@ export default class GhostPool {
 
     }
 
+    add(x, y) {
+
+        const ghost = this.get();
+
+        ghost.setPosition(
+            x,
+            y
+        );
+
+        return ghost;
+
+    }
+
     clear() {
 
-        while (this.active.length > 0) {
+        while (
+            this.active.length > 0
+        ) {
 
-            const ghost = this.active.pop();
+            const ghost =
+                this.active.pop();
 
-            ghost.setVisible(false);
+            ghost.setVisible(
+                false
+            );
 
             this.pool.push(
                 ghost
@@ -82,14 +102,16 @@ export default class GhostPool {
         let x = x1;
         let y = y1;
 
-        for (let i = 0; i < steps; i++) {
+        for (
+            let i = 0;
+            i < steps;
+            i++
+        ) {
 
             x += stepX;
             y += stepY;
 
-            const ghost = this.get();
-
-            ghost.setPosition(
+            this.add(
                 x,
                 y
             );
