@@ -1,5 +1,5 @@
 // src/systems/ItemSystem.js
-// updated: 2026-07-03
+// updated: 2026-07-09 (v0.3.0)
 
 import ItemEntity from "../items/ItemEntity.js";
 
@@ -24,19 +24,58 @@ export default class ItemSystem {
             amount
         );
 
-        this.items.push(entity);
+        this.items.push(
+            entity
+        );
+
+    }
+
+    remove(item) {
+
+        const index = this.items.indexOf(
+            item
+        );
+
+        if (index !== -1) {
+
+            this.items.splice(
+                index,
+                1
+            );
+
+        }
 
     }
 
     update() {
 
-        for (let i = this.items.length - 1; i >= 0; i--) {
+        for (
+            let i = this.items.length - 1;
+            i >= 0;
+            i--
+        ) {
 
             const item = this.items[i];
 
-            const picked = item.update(
-                this.player.sprite
-            );
+            if (
+                !item.sprite ||
+                !item.sprite.active ||
+                !item.sprite.body
+            ) {
+
+                this.items.splice(
+                    i,
+                    1
+                );
+
+                continue;
+
+            }
+
+            const picked =
+                item.update(
+                    this.player.sprite
+                );
 
             if (picked) {
 
@@ -44,19 +83,28 @@ export default class ItemSystem {
                     item.item
                 );
 
-                this.items.splice(i, 1);
+                this.items.splice(
+                    i,
+                    1
+                );
 
                 continue;
 
             }
 
-            if (item.state === "BELT") {
+            if (
+                item.state === "BELT"
+            ) {
 
-                item.sprite.body.setDrag(0);
+                item.sprite.body.setDrag(
+                    0
+                );
 
             } else {
 
-                item.sprite.body.setDrag(120);
+                item.sprite.body.setDrag(
+                    120
+                );
 
             }
 
