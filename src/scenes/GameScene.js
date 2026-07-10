@@ -1,5 +1,5 @@
 // src/scenes/GameScene.js
-// updated: 2026-07-08 (v0.3.0)
+// updated: 2026-07-10 (v0.3.1)
 
 import Phaser from "phaser";
 
@@ -103,7 +103,13 @@ export default class GameScene extends Phaser.Scene {
 
         this.inputSystem.onSelectChest(() => {
 
-        this.placementSystem.toggleChest();
+            this.placementSystem.toggleChest();
+
+        });
+
+        this.inputSystem.onSelectInserter(() => {
+
+            this.placementSystem.toggleInserter();
 
         });
 

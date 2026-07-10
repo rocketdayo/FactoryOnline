@@ -1,5 +1,5 @@
 // src/systems/InputSystem.js
-// updated: 2026-07-08 (v0.3.0)
+// updated: 2026-07-10 (v0.3.1)
 
 export default class InputSystem {
 
@@ -10,7 +10,7 @@ export default class InputSystem {
         this.cursors = scene.input.keyboard.createCursorKeys();
 
         this.keys = scene.input.keyboard.addKeys(
-            "ONE,TWO,W,A,S,D,E,R,SHIFT"
+            "ONE,TWO,THREE,W,A,S,D,E,R,SHIFT"
         );
 
     }
@@ -92,6 +92,15 @@ export default class InputSystem {
 
     }
 
+    onSelectInserter(callback) {
+
+        this.scene.input.keyboard.on(
+            "keydown-THREE",
+            callback
+        );
+
+    }
+
     onRotate(callback) {
 
         this.scene.input.keyboard.on(
@@ -111,7 +120,9 @@ export default class InputSystem {
                     pointer.leftButtonDown()
                 ) {
 
-                    callback(pointer);
+                    callback(
+                        pointer
+                    );
 
                 }
 
@@ -126,7 +137,9 @@ export default class InputSystem {
             "pointermove",
             pointer => {
 
-                callback(pointer);
+                callback(
+                    pointer
+                );
 
             }
         );

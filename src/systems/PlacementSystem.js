@@ -1,9 +1,10 @@
 // src/systems/PlacementSystem.js
-// updated: 2026-07-08 (v0.3.0)
+// updated: 2026-07-10 (v0.3.1)
 
 import Belt from "../buildings/Belt.js";
 import Chest from "../buildings/Chest.js";
-import GhostBelt from "../buildings/GhostBelt.js";
+import Inserter from "../buildings/Inserter.js";
+import GhostBuilding from "../buildings/GhostBuilding.js";
 import GhostPool from "./GhostPool.js";
 
 export default class PlacementSystem {
@@ -20,9 +21,13 @@ export default class PlacementSystem {
 
         this.direction = "right";
 
-        this.ghost = new GhostBelt(scene);
+        this.ghost = new GhostBuilding(
+            scene
+        );
 
-        this.ghostPool = new GhostPool(scene);
+        this.ghostPool = new GhostPool(
+            scene
+        );
 
         this.dragging = false;
 
@@ -33,7 +38,9 @@ export default class PlacementSystem {
             "pointerdown",
             pointer => {
 
-                if (!pointer.leftButtonDown()) {
+                if (
+                    !pointer.leftButtonDown()
+                ) {
 
                     return;
 
@@ -41,7 +48,9 @@ export default class PlacementSystem {
 
                 this.dragging = true;
 
-                this.place(pointer);
+                this.place(
+                    pointer
+                );
 
             }
         );
@@ -64,7 +73,10 @@ export default class PlacementSystem {
 
     toggleBelt() {
 
-        if (this.selectedBuilding === "belt") {
+        if (
+            this.selectedBuilding ===
+            "belt"
+        ) {
 
             this.selectedBuilding = null;
 
@@ -78,17 +90,24 @@ export default class PlacementSystem {
 
         this.selectedBuilding = "belt";
 
-        this.ghost.show();
+        this.ghost.setType(
+            "belt"
+        );
 
         this.ghost.setDirection(
             this.direction
         );
 
+        this.ghost.show();
+
     }
 
     toggleChest() {
 
-        if (this.selectedBuilding === "chest") {
+        if (
+            this.selectedBuilding ===
+            "chest"
+        ) {
 
             this.selectedBuilding = null;
 
@@ -102,6 +121,42 @@ export default class PlacementSystem {
 
         this.selectedBuilding = "chest";
 
+        this.ghost.setType(
+            "chest"
+        );
+
+        this.ghost.show();
+
+    }
+
+    toggleInserter() {
+
+        if (
+            this.selectedBuilding ===
+            "inserter"
+        ) {
+
+            this.selectedBuilding = null;
+
+            this.ghost.hide();
+
+            this.ghostPool.clear();
+
+            return;
+
+        }
+
+        this.selectedBuilding =
+            "inserter";
+
+        this.ghost.setType(
+            "inserter"
+        );
+
+        this.ghost.setDirection(
+            this.direction
+        );
+
         this.ghost.show();
 
     }
@@ -109,10 +164,15 @@ export default class PlacementSystem {
     rotate() {
 
         const directions = [
+
             "right",
+
             "down",
+
             "left",
+
             "up"
+
         ];
 
         let index =
@@ -123,7 +183,8 @@ export default class PlacementSystem {
         index++;
 
         if (
-            index >= directions.length
+            index >=
+            directions.length
         ) {
 
             index = 0;
@@ -168,6 +229,7 @@ export default class PlacementSystem {
         }
 
         this.lastGridX = x;
+
         this.lastGridY = y;
 
         if (
@@ -203,9 +265,33 @@ export default class PlacementSystem {
                 chest
             );
 
+            return;
+
+        }
+
+        if (
+            this.selectedBuilding ===
+            "inserter"
+        ) {
+
+            const inserter =
+                new Inserter(
+                    this.scene,
+                    x,
+                    y,
+                    this.direction
+                );
+
+            this.buildingSystem.add(
+                inserter
+            );
+
+            return;
+
         }
 
     }
+
         updateGhostLine(pointer) {
 
         const world =
@@ -232,7 +318,10 @@ export default class PlacementSystem {
             this.lastGridY === null
         ) {
 
-            this.ghostPool.add(
+            const ghost =
+                this.ghostPool.get();
+
+            ghost.setPosition(
                 x,
                 y
             );
@@ -276,9 +365,13 @@ export default class PlacementSystem {
         ) {
 
             cx += stepX;
+
             cy += stepY;
 
-            this.ghostPool.add(
+            const ghost =
+                this.ghostPool.get();
+
+            ghost.setPosition(
                 cx,
                 cy
             );
@@ -316,9 +409,20 @@ export default class PlacementSystem {
 
         }
 
-        this.updateGhostLine(
-            pointer
-        );
+        if (
+            this.selectedBuilding ===
+            "belt"
+        ) {
+
+            this.updateGhostLine(
+                pointer
+            );
+
+        } else {
+
+            this.ghostPool.clear();
+
+        }
 
     }
 

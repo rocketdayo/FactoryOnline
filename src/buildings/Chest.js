@@ -70,21 +70,36 @@ export default class Chest {
 
     }
 
-    moveItem(item) {
+    moveItem(entity) {
 
-        if (
-            !this.inventory.add(
-                item.item
-            )
-        ) {
+    const item =
+        entity.item ??
+        entity;
 
-            return false;
+    if (
+        !this.inventory.add(
+            item
+        )
+    ) {
 
-        }
+        return false;
 
-        item.destroy();
+    }
 
-        return true;
+    if (
+        entity.sprite &&
+        typeof entity.sprite.disableBody ===
+        "function"
+    ) {
+
+        entity.sprite.disableBody(
+            true,
+            true
+        );
+
+    }
+
+    return true;
 
     }
 

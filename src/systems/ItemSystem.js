@@ -1,5 +1,5 @@
 // src/systems/ItemSystem.js
-// updated: 2026-07-09 (v0.3.0)
+// updated: 2026-07-10 (v0.3.1)
 
 import ItemEntity from "../items/ItemEntity.js";
 
@@ -8,6 +8,7 @@ export default class ItemSystem {
     constructor(scene, player) {
 
         this.scene = scene;
+
         this.player = player;
 
         this.items = [];
@@ -28,39 +29,81 @@ export default class ItemSystem {
             entity
         );
 
+        return entity;
+
     }
 
-    remove(item) {
+    spawnEntity(
+        item,
+        x,
+        y
+    ) {
 
-        const index = this.items.indexOf(
-            item
-        );
-
-        if (index !== -1) {
-
-            this.items.splice(
-                index,
-                1
+        const entity =
+            new ItemEntity(
+                this.scene,
+                x,
+                y,
+                item
             );
 
+        entity.sprite.body.setVelocity(
+            0,
+            0
+        );
+
+        entity.sprite.body.setDrag(
+            0
+        );
+
+        entity.setState(
+            "BELT"
+        );
+
+        this.items.push(
+            entity
+        );
+
+        return entity;
+
+    }
+
+    remove(entity) {
+
+        const index =
+            this.items.indexOf(
+                entity
+            );
+
+        if (
+            index === -1
+        ) {
+
+            return;
+
         }
+
+        this.items.splice(
+            index,
+            1
+        );
 
     }
 
     update() {
 
         for (
-            let i = this.items.length - 1;
+            let i =
+                this.items.length - 1;
             i >= 0;
             i--
         ) {
 
-            const item = this.items[i];
+            const item =
+                this.items[i];
 
             if (
-                !item.sprite ||
-                !item.sprite.active ||
-                !item.sprite.body
+                !item.sprite.active
             ) {
 
                 this.items.splice(
@@ -93,7 +136,16 @@ export default class ItemSystem {
             }
 
             if (
-                item.state === "BELT"
+                !item.sprite.body
+            ) {
+
+                continue;
+
+            }
+
+            if (
+                item.state ===
+                "BELT"
             ) {
 
                 item.sprite.body.setDrag(

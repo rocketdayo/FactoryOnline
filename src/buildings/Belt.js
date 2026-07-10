@@ -236,6 +236,8 @@ export default class Belt {
 
         }
 
+        return true;
+
     }
 
     update() {
