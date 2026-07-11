@@ -1,5 +1,5 @@
 // src/ui/ChestUI.js
-// updated: 2026-07-08 (v0.3.0)
+// updated: 2026-07-11 (v0.3.2)
 
 export default class ChestUI {
 
@@ -10,10 +10,10 @@ export default class ChestUI {
         this.chest = null;
 
         this.background = scene.add.rectangle(
-            120,
-            120,
+            150,
+            170,
+            260,
             220,
-            90,
             0x202020,
             0.9
         );
@@ -28,7 +28,7 @@ export default class ChestUI {
 
         this.text = scene.add.text(
             35,
-            90,
+            70,
             "",
             {
                 fontSize: "18px",
@@ -81,8 +81,11 @@ export default class ChestUI {
     toggle(chest) {
 
         if (
+
             this.chest === chest &&
+
             this.background.visible
+
         ) {
 
             this.hide();
@@ -105,14 +108,41 @@ export default class ChestUI {
 
         }
 
+        let text =
+            "Chest\n\n";
+
+        const items =
+            this.chest.getItems();
+
+        if (
+            items.length === 0
+        ) {
+
+            text +=
+                "(Empty)";
+
+        } else {
+
+            for (
+                const stack of items
+            ) {
+
+                text +=
+
+                    stack.item.name +
+
+                    " ×" +
+
+                    stack.amount +
+
+                    "\n";
+
+            }
+
+        }
+
         this.text.setText(
-
-            "Chest\n\n" +
-
-            "Items : " +
-
-            this.chest.getItemCount()
-
+            text
         );
 
     }
@@ -120,7 +150,9 @@ export default class ChestUI {
     update() {
 
         if (
+
             this.background.visible
+
         ) {
 
             this.refresh();

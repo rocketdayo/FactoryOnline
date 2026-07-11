@@ -1,5 +1,5 @@
 // src/buildings/Chest.js
-// updated: 2026-07-11 (v0.3.1)
+// updated: 2026-07-11 (v0.3.2)
 
 import ChestInventory from "../items/ChestInventory.js";
 
@@ -48,37 +48,44 @@ export default class Chest {
 
     }
 
-    contains(item) {
+    contains(entity) {
 
         return (
 
             Math.abs(
-                item.sprite.x - this.x
+                entity.sprite.x - this.x
             ) < 16 &&
 
             Math.abs(
-                item.sprite.y - this.y
+                entity.sprite.y - this.y
             ) < 16
 
         );
 
     }
 
-    canAccept() {
+    canAccept(item, amount = 1) {
 
-        return !this.inventory.isFull();
+        return (
+            !this.inventory.isFull()
+        );
 
     }
 
     moveItem(entity) {
 
-        const item =
-            entity.item ??
-            entity;
+        if (
+            !entity ||
+            !entity.item
+        ) {
+
+            return false;
+
+        }
 
         if (
             !this.inventory.add(
-                item
+                entity.item
             )
         ) {
 
@@ -103,15 +110,47 @@ export default class Chest {
 
     }
 
+    removeItem(item, amount = 1) {
+
+        return this.inventory.remove(
+            item,
+            amount
+        );
+
+    }
+
+    hasItem(item, amount = 1) {
+
+        return this.inventory.has(
+            item,
+            amount
+        );
+
+    }
+
+    getItemAmount(item) {
+
+        return this.inventory.getAmount(
+            item
+        );
+
+    }
+
+    getItems() {
+
+        return this.inventory.getItems();
+
+    }
+
     getItemCount() {
 
         return this.inventory.size();
 
     }
 
-    removeItem() {
+    clear() {
 
-        return this.inventory.remove();
+        this.inventory.clear();
 
     }
 

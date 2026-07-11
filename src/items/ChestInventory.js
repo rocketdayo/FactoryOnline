@@ -1,5 +1,5 @@
 // src/items/ChestInventory.js
-// updated: 2026-07-08 (v0.3.0)
+// updated: 2026-07-11 (v0.3.2)
 
 export default class ChestInventory {
 
@@ -11,49 +11,136 @@ export default class ChestInventory {
 
     }
 
-    add(item) {
+    findStack(item) {
 
-        if (this.isFull()) {
+        return this.items.find(
+
+            stack =>
+
+                stack.item.id ===
+                item.id
+
+        ) || null;
+
+    }
+
+    add(item, amount = 1) {
+
+        const stack =
+
+            this.findStack(item);
+
+        if (stack) {
+
+            stack.amount += amount;
+
+            return true;
+
+        }
+
+        if (
+
+            this.items.length >=
+
+            this.capacity
+
+        ) {
 
             return false;
 
         }
 
-        this.items.push(
-            item
-        );
+        this.items.push({
+
+            item,
+
+            amount
+
+        });
 
         return true;
 
     }
 
-    remove() {
+    has(item, amount = 1) {
 
-        if (this.items.length === 0) {
+        const stack =
+
+            this.findStack(item);
+
+        if (!stack) {
+
+            return false;
+
+        }
+
+        return (
+
+            stack.amount >= amount
+
+        );
+
+    }
+
+        remove(item, amount = 1) {
+
+        const stack =
+            this.findStack(item);
+
+        if (!stack) {
 
             return null;
 
         }
 
-        return this.items.shift();
+        stack.amount -= amount;
+
+        if (
+            stack.amount <= 0
+        ) {
+
+            const index =
+                this.items.indexOf(
+                    stack
+                );
+
+            this.items.splice(
+                index,
+                1
+            );
+
+        }
+
+        return item;
 
     }
 
     peek() {
 
-        if (this.items.length === 0) {
+        if (
+            this.items.length === 0
+        ) {
 
             return null;
 
         }
 
-        return this.items[0];
+        return this.items[0].item;
 
     }
 
-    clear() {
+    getAmount(item) {
 
-        this.items = [];
+        const stack =
+            this.findStack(item);
+
+        if (!stack) {
+
+            return 0;
+
+        }
+
+        return stack.amount;
 
     }
 
@@ -63,9 +150,17 @@ export default class ChestInventory {
 
     }
 
+        clear() {
+
+        this.items = [];
+
+    }
+
     isEmpty() {
 
-        return this.items.length === 0;
+        return (
+            this.items.length === 0
+        );
 
     }
 
