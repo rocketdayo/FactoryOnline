@@ -13,6 +13,12 @@ export default class ChestInventory {
 
     findStack(item) {
 
+        if (!item) {
+
+            return null;
+
+        }
+
         return this.items.find(
 
             stack =>
@@ -27,7 +33,6 @@ export default class ChestInventory {
     add(item, amount = 1) {
 
         const stack =
-
             this.findStack(item);
 
         if (stack) {
@@ -39,11 +44,8 @@ export default class ChestInventory {
         }
 
         if (
-
             this.items.length >=
-
             this.capacity
-
         ) {
 
             return false;
@@ -65,7 +67,6 @@ export default class ChestInventory {
     has(item, amount = 1) {
 
         const stack =
-
             this.findStack(item);
 
         if (!stack) {
@@ -75,14 +76,24 @@ export default class ChestInventory {
         }
 
         return (
-
             stack.amount >= amount
-
         );
 
     }
 
-        remove(item, amount = 1) {
+    remove(item = null, amount = 1) {
+
+        if (item === null) {
+
+            if (this.items.length === 0) {
+
+                return null;
+
+            }
+
+            item = this.items[0].item;
+
+        }
 
         const stack =
             this.findStack(item);
@@ -150,7 +161,7 @@ export default class ChestInventory {
 
     }
 
-        clear() {
+    clear() {
 
         this.items = [];
 

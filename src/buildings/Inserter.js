@@ -343,7 +343,26 @@ export default class Inserter {
 
         }
 
-        this.heldItem = item;
+        const entity =
+            this.scene.itemSystem.spawnEntity(
+                item,
+                this.x,
+             this.y
+            );
+
+        entity.sprite.setVisible(
+            false
+        );
+
+        entity.sprite.body.enable =
+            false;
+
+        this.scene.itemSystem.remove(
+            entity
+        );
+
+        this.heldItem =
+            entity;
 
         return true;
 
