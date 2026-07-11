@@ -1,5 +1,5 @@
 // src/buildings/Chest.js
-// updated: 2026-07-09 (v0.3.0)
+// updated: 2026-07-11 (v0.3.1)
 
 import ChestInventory from "../items/ChestInventory.js";
 
@@ -72,34 +72,34 @@ export default class Chest {
 
     moveItem(entity) {
 
-    const item =
-        entity.item ??
-        entity;
+        const item =
+            entity.item ??
+            entity;
 
-    if (
-        !this.inventory.add(
-            item
-        )
-    ) {
+        if (
+            !this.inventory.add(
+                item
+            )
+        ) {
 
-        return false;
+            return false;
 
-    }
+        }
 
-    if (
-        entity.sprite &&
-        typeof entity.sprite.disableBody ===
-        "function"
-    ) {
+        if (
+            entity.sprite &&
+            typeof entity.sprite.disableBody ===
+            "function"
+        ) {
 
-        entity.sprite.disableBody(
-            true,
-            true
-        );
+            entity.sprite.disableBody(
+                true,
+                true
+            );
 
-    }
+        }
 
-    return true;
+        return true;
 
     }
 

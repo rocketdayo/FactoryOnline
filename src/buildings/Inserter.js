@@ -291,24 +291,29 @@ export default class Inserter {
     pickupFromBelt() {
 
         const entity =
-            this.findItemOnBelt();
+        this.findItemOnBelt();
 
         if (!entity) {
 
-            return false;
+        return false;
 
         }
 
         this.heldItem =
-            entity.item;
+        entity;
 
-        this.scene
-            .itemSystem
-            .remove(
-                entity
-            );
+        entity.sprite.body.stop();
 
-        entity.destroy();
+        entity.sprite.setVisible(
+        false
+        );
+
+        entity.sprite.body.enable =
+            false;
+
+        this.scene.itemSystem.remove(
+            entity
+        );
 
         return true;
 
@@ -394,7 +399,7 @@ export default class Inserter {
 
     }
 
-        dropToChest() {
+    dropToChest() {
 
         const output =
             this.getOutputBuilding();
@@ -403,27 +408,15 @@ export default class Inserter {
             !output ||
             typeof output.moveItem !==
             "function"
-        ) {
+            ) {
 
             return false;
 
         }
 
-        const entity = {
-
-            item: this.heldItem,
-
-            sprite: {
-
-                active: true
-
-            }
-
-        };
-
         if (
             !output.moveItem(
-                entity
+                this.heldItem
             )
         ) {
 
@@ -440,16 +433,26 @@ export default class Inserter {
     dropToBelt() {
 
         const pos =
-            this.getOutputPosition();
+        this.getOutputPosition();
 
-        this.scene.itemSystem.spawnEntity(
+    this.heldItem.sprite.setPosition(
+        pos.x,
+        pos.y
+    );
 
-            this.heldItem,
+    this.heldItem.sprite.setVisible(
+        true
+    );
 
-            pos.x,
+    this.heldItem.sprite.body.enable =
+        true;
 
-            pos.y
+    this.heldItem.setState(
+            "BELT"
+        );
 
+        this.scene.itemSystem.items.push(
+            this.heldItem
         );
 
         this.heldItem = null;
